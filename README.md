@@ -10,7 +10,7 @@ Current Concierge runs as a standalone script.  My plan is to use Apache to prop
 This project uses Perl Dancer <http://perldancer.org/>.  I'm best at Perl.  Perl Dancer is based on the Sinatra project.
 
 ### SQLite
-SQLite is fast and simple, two things I really this project to be.
+SQLite is fast and simple, two things I really want this project to be.
 
 #### Table Names
-The table names a selected are **singular**.  I usually prefer plural table names in designing tables (the content makes of a collection of the thing the table is named for), but I also like simple code.  So, to serve the latter, I use singular table names to make my code simpler.
+The table names a selected are **singular**.  I usually prefer plural table names in designing tables (the content makes up a collection of the thing the table is named for), but I also like simple code.  So, to serve the latter, I use singular table names to make my code simpler.

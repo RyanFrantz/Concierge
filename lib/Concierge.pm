@@ -6,7 +6,7 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getResource postStatus );
+our @EXPORT = qw( greeting getStatus getResource postStatus getDeps );
 #our @EXPORT_OK = qw( greeting getStatus );
 
 sub greeting {
@@ -49,7 +49,7 @@ sub postStatus {
 	my $statusID = shift;
 	my $sql;
 	$sql = qq{ UPDATE ${resource} SET ${resource}StatusID = ? WHERE ${resource}ID = ? };
-	print $sql . " $statusID, $resourceID\n";
+	print $sql . " $statusID, $resourceID\n";	# debug
 
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
@@ -78,4 +78,32 @@ sub getResource {
 	print "\n";
 }
 
+sub getDeps {
+	# get the dependencies of the requested resource (app, service)
+	my $dbh = shift;
+	my $resource = shift;
+	my $resourceID = shift;	# numeric
+	return unless $resourceID =~ /\d+/;	# only numeric args here!
+	my $sql;
+	#$sql = qq{ SELECT DISTINCT ${resource}.${resource}Name, ${resource}StatusDescription FROM ${resource} NATURAL JOIN ${resource}Status WHERE ${resource}.${resource}ID = ? } if $resourceID =~ /\d+/;
+	$sql = qq{ SELECT service.ServiceName };
+
+	my $sth = $dbh->prepare( $sql )
+		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+
+	if ( $resourceID =~ /\d+/ ) {
+		$sth->execute( $resourceID )
+			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+	} else {
+		$sth->execute()
+			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+	}
+
+	while ( my @row = $sth->fetchrow_array ) {
+		print join( ' | ', @row ) . "\n";
+	}
+	print "\n";
+}
+
+sub postStatus {
 1;

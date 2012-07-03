@@ -37,6 +37,12 @@ get '/apps/all/status' => sub {
 	getStatus( $dbh, 'app', 'all' );
 };
 
+# application dependencies
+get '/apps/:appID/deps' => sub {
+	my $appID = param( 'appID' );
+	getDeps( $dbh, 'app', $appID );
+};
+
 get '/apps/:appID/status' => sub {
 	# this should return a message on failure (i.e. invalid appID)
 	my $appID = param( 'appID' );

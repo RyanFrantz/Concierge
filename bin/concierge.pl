@@ -85,6 +85,12 @@ get '/services/all/status' => sub {
 	getStatus( $dbh, 'service', 'all' );
 };
 
+# service dependencies
+get '/services/:serviceID/deps' => sub {
+	my $serviceID = param( 'serviceID' );
+	getDeps( $dbh, 'service', $serviceID );
+};
+
 get '/services/:serviceID/status' => sub {
 	# this should return a message on failure (i.e. invalid serviceID)
 	my $serviceID = param( 'serviceID' );

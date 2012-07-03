@@ -85,19 +85,14 @@ sub getDeps {
 	my $resourceID = shift;	# numeric
 	return unless $resourceID =~ /\d+/;	# only numeric args here!
 	my $sql;
-	#$sql = qq{ SELECT DISTINCT ${resource}.${resource}Name, ${resource}StatusDescription FROM ${resource} NATURAL JOIN ${resource}Status WHERE ${resource}.${resource}ID = ? } if $resourceID =~ /\d+/;
-	$sql = qq{ SELECT service.ServiceName };
+	$sql = qq{ SELECT service.serviceID, service.serviceName FROM service INNER JOIN service2app ON service.serviceID = service2app.serviceID WHERE service2app.appID = ? } if $resource =~ /app/;
+	$sql = qq{ SELECT host.hostID, host.hostName FROM host INNER JOIN host2service ON host.hostID = host2service.hostID WHERE host2service.serviceID = ? } if $resource =~ /service/;
 
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
 
-	if ( $resourceID =~ /\d+/ ) {
-		$sth->execute( $resourceID )
-			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
-	} else {
-		$sth->execute()
-			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
-	}
+	$sth->execute( $resourceID )
+		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 
 	while ( my @row = $sth->fetchrow_array ) {
 		print join( ' | ', @row ) . "\n";
@@ -105,5 +100,4 @@ sub getDeps {
 	print "\n";
 }
 
-sub postStatus {
 1;

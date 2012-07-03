@@ -37,12 +37,6 @@ get '/apps/all/status' => sub {
 	getStatus( $dbh, 'app', 'all' );
 };
 
-# application dependencies
-get '/apps/:appID/deps' => sub {
-	my $appID = param( 'appID' );
-	getDeps( $dbh, 'app', $appID );
-};
-
 get '/apps/:appID/status' => sub {
 	# this should return a message on failure (i.e. invalid appID)
 	my $appID = param( 'appID' );
@@ -62,6 +56,12 @@ get '/hosts' => sub {
 
 get '/hosts/all/status' => sub {
 	getStatus( $dbh, 'host', 'all' );
+};
+
+# host dependencies
+get '/hosts/:hostID/deps' => sub {
+	my $hostID = param( 'hostID' );
+	getDeps( $dbh, 'host', $hostID );
 };
 
 get '/hosts/:hostID/status' => sub {

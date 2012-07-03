@@ -16,7 +16,8 @@ my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", $user, $password )
 #my $sql = qq{ SELECT * FROM apps };
 # use NATURAL JOIN as we've named FKs to match the respective PKs
 #my $sql = qq{ SELECT DISTINCT apps.appDescription, appStatusDescription FROM apps NATURAL JOIN appStatus };
-my $sql = qq{ SELECT service.serviceName FROM service INNER JOIN service2app ON service.serviceID = service2app.serviceID WHERE service2app.appID = '2' };
+#my $sql = qq{ SELECT service.serviceName FROM service INNER JOIN service2app ON service.serviceID = service2app.serviceID WHERE service2app.appID = '2' };
+my $sql = qq{ SELECT service.serviceID, service.serviceName FROM service INNER JOIN service2app ON service.serviceID = host2service.serviceID WHERE host2service.hostID = '2' };
 my $sth = $dbh->prepare( $sql )
 	or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
 

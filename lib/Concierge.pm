@@ -79,14 +79,16 @@ sub getResource {
 }
 
 sub getDeps {
-	# get the dependencies of the requested resource (app, service)
+	# get the dependencies of the requested resource (host, service)
+	# answer the question: which $thing[s] depend on $resource?
+	#  NOT: which $thing[s] does $resource depend on?
 	my $dbh = shift;
 	my $resource = shift;
 	my $resourceID = shift;	# numeric
 	return unless $resourceID =~ /\d+/;	# only numeric args here!
 	my $sql;
-	$sql = qq{ SELECT service.serviceID, service.serviceName FROM service INNER JOIN service2app ON service.serviceID = service2app.serviceID WHERE service2app.appID = ? } if $resource =~ /app/;
-	$sql = qq{ SELECT host.hostID, host.hostName FROM host INNER JOIN host2service ON host.hostID = host2service.hostID WHERE host2service.serviceID = ? } if $resource =~ /service/;
+	$sql = qq{ SELECT service.serviceID, service.serviceName FROM service INNER JOIN host2service ON service.serviceID = host2service.serviceID WHERE host2service.hostID = ? } if $resource =~ /host/;
+	$sql = qq{ SELECT app.appID, app.appName FROM app INNER JOIN service2app ON app.appID = service2app.appID WHERE service2app.serviceID = ? } if $resource =~ /service/;
 
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";

@@ -19,8 +19,6 @@ my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", $user, $password )
 	or die "Unable to connect to SQLite database: " . DBI->errstr . "\n";
 # subs
 
-#my $sub = sub { "Hello, World!\n\nI'm the App Status Dispatch a.k.a Concierge!\n"; };
-#get '/' => $sub;
 get '/' => sub {
 	greeting();
 };

@@ -45,6 +45,12 @@ get '/apps/:appID/status' => sub {
 	getStatus( $dbh, 'app', $appID );
 };
 
+post '/apps/:appID/status' => sub {
+	my $appID = param( 'appID' );
+	my $statusID = param( 'statusID' );	# passed in the POST content
+	postStatus( $dbh, 'app', $appID, $statusID );
+};
+
 # -- hosts
 get '/hosts' => sub {
 	getResource( $dbh, 'host' );
@@ -60,6 +66,12 @@ get '/hosts/:hostID/status' => sub {
 	getStatus( $dbh, 'host', $hostID );
 };
 
+post '/hosts/:hostID/status' => sub {
+	my $hostID = param( 'hostID' );
+	my $statusID = param( 'statusID' );	# passed in the POST content
+	postStatus( $dbh, 'host', $hostID, $statusID );
+};
+
 # -- services
 get '/services' => sub {
 	getResource( $dbh, 'service' );
@@ -73,6 +85,12 @@ get '/services/:serviceID/status' => sub {
 	# this should return a message on failure (i.e. invalid serviceID)
 	my $serviceID = param( 'serviceID' );
 	getStatus( $dbh, 'service', $serviceID );
+};
+
+post '/services/:serviceID/status' => sub {
+	my $serviceID = param( 'serviceID' );
+	my $statusID = param( 'statusID' );	# passed in the POST content
+	postStatus( $dbh, 'service', $serviceID, $statusID );
 };
 
 dance;

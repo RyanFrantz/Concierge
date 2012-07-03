@@ -6,7 +6,7 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getResource);
+our @EXPORT = qw( greeting getStatus getResource postStatus );
 #our @EXPORT_OK = qw( greeting getStatus );
 
 sub greeting {
@@ -37,6 +37,27 @@ sub getStatus {
 	while ( my @row = $sth->fetchrow_array ) {
 		print join( ' | ', @row ) . "\n";
 	}
+	print "\n";
+}
+
+sub postStatus {
+	# update the status of the requested resource (app, host, service)
+	my $dbh = shift;
+	my $resource = shift;
+	my $resourceID = shift;	# numeric
+	return unless $resourceID =~ /\d+/;	# only numeric args here!
+	my $statusID = shift;
+	my $sql;
+	$sql = qq{ UPDATE ${resource} SET ${resource}StatusID = ? WHERE ${resource}ID = ? };
+	print $sql . " $statusID, $resourceID\n";
+
+	my $sth = $dbh->prepare( $sql )
+		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+
+	$sth->execute( $statusID, $resourceID )
+		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+
+	# TODO: return something useful on error...
 	print "\n";
 }
 

@@ -58,6 +58,7 @@ sub postStatus {
 		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 
 	# TODO: have postStatus() process dependencies and set upstream statuses as well
+	processDeps();	# much planning to do here...
 
 	# TODO: return something useful on error...
 	print "\n";
@@ -102,6 +103,14 @@ sub getDeps {
 		print join( ' | ', @row ) . "\n";
 	}
 	print "\n";
+}
+
+sub processDeps {
+	# process dependencies and update status accordingly
+	# 1. determine the appropriate upstream resource (i.e. host -> service; service -> app)
+	# 2. getDeps()
+	# 3. postStatus()
+	# 4. updateDashboard() << here? or outside of processDeps()?
 }
 
 sub getServiceStatus2AppStatusRules {

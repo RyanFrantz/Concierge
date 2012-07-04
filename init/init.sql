@@ -40,8 +40,8 @@ CREATE TABLE service (
 INSERT INTO serviceStatus( serviceStatusDescription ) VALUES( 'UP' );
 -- I think we need something akin to 'REDUNDACY LOST' to indicate the potential for disruption to an upstream app
 --  when a given service has n+1 hosts that provide that service (i.e. DNS)
-INSERT INTO serviceStatus( serviceStatusDescription ) VALUES( 'DOWN' );
 INSERT INTO serviceStatus( serviceStatusDescription ) VALUES( 'REDUNDANCY LOST' );
+INSERT INTO serviceStatus( serviceStatusDescription ) VALUES( 'DOWN' );
 
 -- seed status
 INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'DNS', 'Domain Name Service', 3 );
@@ -112,3 +112,18 @@ INSERT INTO service2app( serviceID, appID ) VALUES( 2, 1 );
 INSERT INTO service2app( serviceID, appID ) VALUES( 1, 2 );
 ---- The 'Web Servers' service is required by the Request Tracker app
 INSERT INTO service2app( serviceID, appID ) VALUES( 2, 2 );
+
+-- define the link between service status and app status; generic rules
+CREATE TABLE serviceStatus2appStatus (
+	genericID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	serviceStatusID INTEGER NOT NULL REFERENCES serviceStatus( serviceStatusID ),
+	appStatusID INTEGER NOT NULL REFERENCES appStatus( appStatusID )
+);
+
+-- seed serviceStatus2appStatus
+---- service status = UP, app status = Available
+INSERT INTO serviceStatus2appStatus( serviceStatusID, appStatusID ) VALUES( 1, 1 );
+---- service status = REDUNDANCY LOST, app status = Service disruption
+INSERT INTO serviceStatus2appStatus( serviceStatusID, appStatusID ) VALUES( 2, 2 );
+---- service status = DOWN, app status = Service outage
+INSERT INTO serviceStatus2appStatus( serviceStatusID, appStatusID ) VALUES( 3, 3 );

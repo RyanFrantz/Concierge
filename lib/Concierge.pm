@@ -49,13 +49,15 @@ sub postStatus {
 	my $statusID = shift;
 	my $sql;
 	$sql = qq{ UPDATE ${resource} SET ${resource}StatusID = ? WHERE ${resource}ID = ? };
-	print $sql . " $statusID, $resourceID\n";	# debug
+	#print $sql . " $statusID, $resourceID\n";	# debug
 
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
 
 	$sth->execute( $statusID, $resourceID )
 		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+
+	# TODO: have postStatus() process dependencies and set upstream statuses as well
 
 	# TODO: return something useful on error...
 	print "\n";
@@ -100,6 +102,16 @@ sub getDeps {
 		print join( ' | ', @row ) . "\n";
 	}
 	print "\n";
+}
+
+sub getServiceStatus2AppStatusRules {
+	# I may want the below SQL at some point to GET the rules/relationships between
+	# the service status and app status, in plain English
+	# i.e. if service status = 'REDUNDANCY LOST', app status = 'Service disruption'
+	my $sql;
+	$sql = qq{ SELECT serviceStatus.serviceStatusDescription, appStatus.appStatusDescription FROM serviceStatus2appStatus
+ INNER JOIN serviceStatus ON serviceStatus2appStatus.serviceStatusID = serviceStatus.serviceStatusID
+ INNER JOIN appStatus ON serviceStatus2appStatus.appStatusID = appStatus.appStatusID };
 }
 
 1;

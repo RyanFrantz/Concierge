@@ -46,7 +46,7 @@ get '/apps' => sub {
 get '/apps2' => sub {
 	my $vars = {
 		title => 'Concierge',
-		days => [ 'Monday', 'Tuesday', ],
+		days => [ 'Monday', 'Sunday', ],
 		apps => [
 			{ name => 'Test', url => '1', slug => '1', history => [ {image => 'icons/fugue/cross-circle.png' }, { image => 'icons/fugue/hard-hat.png' } ], },
 			{ name => 'Foo', url => 'foo', slug => '2-foo', history => [ {image => 'icons/fugue/broom.png'}, { image => 'icons/fugue/hard-hat.png' } ], },

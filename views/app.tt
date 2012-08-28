@@ -28,4 +28,4 @@
   </tbody>
 </table>
 
-<%# INCLUDE "_legend.html" %>
+<% INCLUDE "_legend.html" %>

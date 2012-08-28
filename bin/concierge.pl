@@ -4,6 +4,7 @@ use lib "/root/concierge/lib";
 use DBI;
 use DBD::SQLite;
 use Dancer;
+#set port => 8080;
 
 use Concierge;
 use Concierge::Help;
@@ -19,8 +20,18 @@ my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", $user, $password )
 	or die "Unable to connect to SQLite database: " . DBI->errstr . "\n";
 # subs
 
+#get '/' => sub {
+#	greeting();
+#};
+
 get '/' => sub {
-	greeting();
+	my $vars = greeting();
+	template 'base.tt', $vars;
+#	template 'base.tt', {
+#		'name'		=>	$vars->{ 'name' },
+#		'title'		=>	$vars->{ 'title' },
+#		'logout_url'	=>	$vars->{ 'logout_url' },
+#	};
 };
 
 get '/help' => sub {
@@ -30,6 +41,15 @@ get '/help' => sub {
 # -- apps
 get '/apps' => sub {
 	getResource( $dbh, 'app' );
+};
+
+get '/apps2' => sub {
+	my $vars = {
+		days => [ 'Monday', 'Tuesday', ],
+		apps => 
+			[ name => 'Test', url => '1', slug => '1', ],
+	};
+	template 'app.tt', $vars;
 };
 
 # order is important; the 'all' block _must_ come before "get '/apps/:appID/status'" or it's ignored

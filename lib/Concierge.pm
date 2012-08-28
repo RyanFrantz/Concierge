@@ -9,8 +9,19 @@ our @ISA = qw( Exporter);
 our @EXPORT = qw( greeting getStatus getResource postStatus getDeps );
 #our @EXPORT_OK = qw( greeting getStatus );
 
+use Template;
+
+#sub greeting {
+#	"Hello, World!\n\nI'm the App Status Dispatch a.k.a Concierge!\n";
+#}
+
 sub greeting {
-	"Hello, World!\n\nI'm the App Status Dispatch a.k.a Concierge!\n";
+	my $vars = {
+		name		=>	'Ryan',
+		title		=>	'Concierge',
+		logout_url	=>	'logout.html',
+	};
+	return $vars;
 }
 
 sub getStatus {

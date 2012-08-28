@@ -1,0 +1,41 @@
+<table id="apps" class="data">
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th class="today">Current</th>
+      [% FOREACH day IN days %]
+      <th> [% day %] </th>
+      [% END %]
+  </thead>
+
+  <tbody>
+    [% FOREACH app IN apps %]
+    <tr id="[% app.slug %]">
+      <td>
+	<a href="[% app.url %]">[% app.name %]</a>
+      </td>
+      <td class="status highlight">
+	<a href="[% app.url %]">
+	  [% IF app.has_issues %]
+	    <img class="information" src="/images/small-information.png" alt="Had Issues"/>
+	  [% END %]
+	  <img class="sym" src="/images/[% app.status.image %]" alt="[% app.status.title %]"/>
+	</a>
+      </td>
+      [% FOREACH h IN app.history %]
+      <td class="status">
+	[% IF h.information %]
+	<a href="[% app.url %]/[% h.day %]">
+	  <img class="sym" src="/images/[% h.image %]" alt="[% h.title %]"/>
+	</a>
+	[% ELSE %]
+	<img class="sym" src="/images/[% h.image %]" alt="[% h.title %]"/>
+	[% END %]
+      </td>
+      [% END %]
+    [% END %]
+  </tbody>
+</table>
+
+<!-- INCLUDE here? -->
+<!--[% include "_legend.html" %] -->

@@ -45,9 +45,13 @@ get '/apps' => sub {
 
 get '/apps2' => sub {
 	my $vars = {
+		title => 'Concierge',
 		days => [ 'Monday', 'Tuesday', ],
-		apps => 
-			[ name => 'Test', url => '1', slug => '1', ],
+		apps => [
+			{ name => 'Test', url => '1', slug => '1' },
+			{ name => 'Foo', url => 'foo', slug => '2-foo' },
+			{ name => 'Bar', url => 'bar', slug => '3-bar' },
+		]
 	};
 	template 'app.tt', $vars;
 };

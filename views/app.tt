@@ -15,12 +15,15 @@
 	<a href="<% app.url %>"><% app.name %></a>
       </td>
       <td class="status highlight">
-	<a href="<% app.url %>">
+	<a href="/apps/<% app.url %>">
 	    <img class="information" src="/images/small-information.png" alt="Had Issues"/>
 	</a>
       </td>
       <td class="status">
-	  <img class="sym" src="/images/<% h.image %>" alt="<% h.title %>"/>
+	  <img class="sym" src="/images/icons/fugue/cross-circle.png" alt="cross-circle"/>
+      </td>
+      <td class="status">
+	  <img class="sym" src="/images/icons/fugue/exclamation.png" alt="exclamation"/>
       </td>
     <% END %>
   </tbody>

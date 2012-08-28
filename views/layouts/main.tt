@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="60"/>
     <title><% title %></title>
     <link rel="stylesheet" href="/css/reset.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" />
@@ -13,7 +14,8 @@
       <header>
 	<div class="actions button-container">
     <a href="<% report_url %>" class="button pill big">
-      <i class="icon-exclamation-sign"></i>Love the Stash</a>
+      <%# <i class="icon-exclamation-sign"></i>Love the Stash</a> %>
+      Love the Stash</a>
 	</div>
         <img id="logo" src="/images/logo.png" alt="Logo"/>
         <a href="/"><h1 id="title"><% title %></h1></a>

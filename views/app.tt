@@ -19,12 +19,11 @@
 	    <img class="information" src="/images/small-information.png" alt="Had Issues"/>
 	</a>
       </td>
+      <% FOREACH h IN app.history %>
       <td class="status">
-	  <img class="sym" src="/images/icons/fugue/cross-circle.png" alt="cross-circle"/>
+	  <img class="sym" src="/images/<% h.image %>" />
       </td>
-      <td class="status">
-	  <img class="sym" src="/images/icons/fugue/exclamation.png" alt="exclamation"/>
-      </td>
+      <% END %>
     <% END %>
   </tbody>
 </table>

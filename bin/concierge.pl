@@ -48,9 +48,9 @@ get '/apps2' => sub {
 		title => 'Concierge',
 		days => [ 'Monday', 'Tuesday', ],
 		apps => [
-			{ name => 'Test', url => '1', slug => '1' },
-			{ name => 'Foo', url => 'foo', slug => '2-foo' },
-			{ name => 'Bar', url => 'bar', slug => '3-bar' },
+			{ name => 'Test', url => '1', slug => '1', history => [ {image => 'icons/fugue/cross-circle.png' }, { image => 'icons/fugue/hard-hat.png' } ], },
+			{ name => 'Foo', url => 'foo', slug => '2-foo', history => [ {image => 'icons/fugue/broom.png'}, { image => 'icons/fugue/hard-hat.png' } ], },
+			{ name => 'Bar', url => 'bar', slug => '3-bar', history => [ {image => 'icons/fugue/traffic-cone.png'}, { image => 'icons/fugue/flag.png' } ], },
 		]
 	};
 	template 'app.tt', $vars;

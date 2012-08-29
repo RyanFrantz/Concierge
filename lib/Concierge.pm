@@ -31,7 +31,7 @@ sub getStatus {
 	my $resourceID = shift;	# can be numeric or the word 'all'
 	my $sql;
 	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} };
-	$sql = qq{ SELECT DISTINCT ${resource}Name, ${resource}StatusDescription, ${resource}StatusImage FROM ${resource} NATURAL JOIN ${resource}Status } if $resourceID eq "all";
+	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}StatusDescription, ${resource}StatusImage FROM ${resource} NATURAL JOIN ${resource}Status } if $resourceID eq "all";
 	$sql = qq{ SELECT DISTINCT ${resource}.${resource}Name, ${resource}StatusDescription FROM ${resource} NATURAL JOIN ${resource}Status WHERE ${resource}.${resource}ID = ? } if $resourceID =~ /\d+/;
 
 	my $sth = $dbh->prepare( $sql )
@@ -54,8 +54,7 @@ sub getStatus {
 	while ( my $ref = $sth->fetchrow_hashref ) {
 		my $hashref = { 
 				name => $ref->{"${resource}Name"},
-				url => '1',
-				slug => '1',
+				id => $ref->{"${resource}ID"},
 				statusImage => $ref->{"${resource}StatusImage"},
 				statusDescription => $ref->{"${resource}StatusDescription"},
 				history => [

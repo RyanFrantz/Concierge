@@ -55,7 +55,8 @@ get '/apps/all/status' => sub {
 get '/apps/:appID/status' => sub {
 	# this should return a message on failure (i.e. invalid appID)
 	my $appID = param( 'appID' );
-	getStatus( $dbh, 'app', $appID );
+	my $vars = getStatus( $dbh, 'app', $appID );
+	template 'app.tt', $vars;
 };
 
 post '/apps/:appID/status' => sub {

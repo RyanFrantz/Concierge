@@ -10,12 +10,12 @@
 
   <tbody>
     <% FOREACH app IN apps %>
-    <tr id="<% app.slug %>">
+    <tr>
       <td>
-	<a href="<% app.url %>"><% app.name %></a>
+	<a href="/apps/<% app.id %>/status"><% app.name %></a>
       </td>
       <td class="status highlight">
-	<a href="/apps/<% app.url %>">
+	<a href="/apps/<% app.id %>/status">
 	    <img class="information" src="/images/<% app.statusImage %>" alt="<% app.statusDescription %>"/>
 	</a>
       </td>

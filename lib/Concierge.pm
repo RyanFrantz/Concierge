@@ -52,7 +52,8 @@ sub getStatus {
 	};
 
 	while ( my $ref = $sth->fetchrow_hashref ) {
-		my $hashref = { name => $ref->{"${resource}Name"},
+		my $hashref = { 
+				name => $ref->{"${resource}Name"},
 				url => '1',
 				slug => '1',
 				statusImage => $ref->{"${resource}StatusImage"},

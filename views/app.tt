@@ -1,7 +1,7 @@
 <table id="apps" class="data">
   <thead>
     <tr>
-      <th>Service</th>
+      <th>Application</th>
       <th class="today">Current</th>
       <% FOREACH day IN days %>
       <th> <% day %> </th>
@@ -16,7 +16,7 @@
       </td>
       <td class="status highlight">
 	<a href="/apps/<% app.url %>">
-	    <img class="information" src="/images/small-information.png" alt="Had Issues"/>
+	    <img class="information" src="/images/<% app.statusImage %>" alt="<% app.statusDescription %>"/>
 	</a>
       </td>
       <% FOREACH h IN app.history %>

@@ -1,7 +1,8 @@
 -- app
 CREATE TABLE appStatus (
 	appStatusID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	appStatusDescription TEXT
+	appStatusDescription TEXT,
+	appStatusImage TEXT
 );
 
 CREATE TABLE app (
@@ -13,9 +14,9 @@ CREATE TABLE app (
 );
 
 -- seed appStatus
-INSERT INTO appStatus( appStatusDescription ) VALUES( 'Available' );
-INSERT INTO appStatus( appStatusDescription ) VALUES( 'Service disruption' );
-INSERT INTO appStatus( appStatusDescription ) VALUES( 'Service outage' );
+INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Available', 'icons/fugue/tick-circle.png' );
+INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Service disruption', 'icons/fugue/exclamation.png' );
+INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Service outage', 'icons/fugue/cross-circle.png' );
 
 -- seed app
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Clinician Desktop', 'MMOTS Workhorse', 2 );

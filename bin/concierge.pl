@@ -4,7 +4,6 @@ use lib "/root/concierge/lib";
 use DBI;
 use DBD::SQLite;
 use Dancer;
-#set port => 8080;
 
 use Concierge;
 use Concierge::Help;
@@ -44,15 +43,7 @@ get '/apps' => sub {
 };
 
 get '/apps2' => sub {
-	my $vars = {
-		title => 'Concierge',
-		days => [ 'Monday', 'Sunday', ],
-		apps => [
-			{ name => 'Test', url => '1', slug => '1', history => [ {image => 'icons/fugue/cross-circle.png' }, { image => 'icons/fugue/hard-hat.png' } ], },
-			{ name => 'Foo', url => 'foo', slug => '2-foo', history => [ {image => 'icons/fugue/broom.png'}, { image => 'icons/fugue/hard-hat.png' } ], },
-			{ name => 'Bar', url => 'bar', slug => '3-bar', history => [ {image => 'icons/fugue/traffic-cone.png'}, { image => 'icons/fugue/flag.png' } ], },
-		]
-	};
+	my $vars = getStatus($dbh, 'app', 'all');
 	template 'app.tt', $vars;
 };
 

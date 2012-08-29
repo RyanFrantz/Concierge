@@ -31,7 +31,7 @@ sub getStatus {
 	my $resourceID = shift;	# can be numeric or the word 'all'
 	my $sql;
 	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} };
-	$sql = qq{ SELECT DISTINCT ${resource}Name, ${resource}StatusDescription FROM ${resource} NATURAL JOIN ${resource}Status } if $resourceID eq "all";
+	$sql = qq{ SELECT DISTINCT ${resource}Name, ${resource}StatusDescription, ${resource}StatusImage FROM ${resource} NATURAL JOIN ${resource}Status } if $resourceID eq "all";
 	$sql = qq{ SELECT DISTINCT ${resource}.${resource}Name, ${resource}StatusDescription FROM ${resource} NATURAL JOIN ${resource}Status WHERE ${resource}.${resource}ID = ? } if $resourceID =~ /\d+/;
 
 	my $sth = $dbh->prepare( $sql )
@@ -45,10 +45,27 @@ sub getStatus {
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 	}
 
-	while ( my @row = $sth->fetchrow_array ) {
-		print join( ' | ', @row ) . "\n";
+	my $vars = {
+		title => 'Concierge',
+		days => [ 'Monday', 'Sunday', ],
+		apps => [],
+	};
+
+	while ( my $ref = $sth->fetchrow_hashref ) {
+		my $hashref = { name => $ref->{"${resource}Name"},
+				url => '1',
+				slug => '1',
+				statusImage => $ref->{"${resource}StatusImage"},
+				statusDescription => $ref->{"${resource}StatusDescription"},
+				history => [
+					{image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/hard-hat.png'}
+				],
+	 	};
+		push @{ $vars->{ 'apps' } }, $hashref;
 	}
-	print "\n";
+
+	return $vars;
+	
 }
 
 sub postStatus {

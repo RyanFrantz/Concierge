@@ -6,7 +6,7 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getResource postStatus getDeps );
+our @EXPORT = qw( greeting getStatus getStatusTypes getResource postStatus getDeps );
 #our @EXPORT_OK = qw( greeting getStatus );
 
 use Template;
@@ -22,6 +22,32 @@ sub greeting {
 		logout_url	=>	'logout.html',
 	};
 	return $vars;
+}
+
+sub getStatusTypes {
+	# get the status of the requested resource (app, host, service)
+	my $dbh = shift;
+	my $resource = shift;
+	my $sql;
+	$sql = qq{ SELECT ${resource}StatusDescription, ${resource}StatusImage FROM ${resource}Status };
+
+	my $sth = $dbh->prepare( $sql )
+		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+
+	$sth->execute()
+		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+
+	my $statuses = [];
+	while ( my $ref = $sth->fetchrow_hashref ) {
+		my $hashref = {
+			image => $ref->{"${resource}StatusImage"},
+			description => $ref->{"${resource}StatusDescription"},
+		};
+		push @{ $statuses }, $hashref;
+	}
+
+	return $statuses;
+	
 }
 
 sub getStatus {
@@ -45,10 +71,13 @@ sub getStatus {
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 	}
 
+	# get status types for the given resource type
+	my $statuses = getStatusTypes( $dbh, $resource );
 	my $vars = {
 		title => 'Concierge',
 		days => [ 'Monday', 'Sunday', ],
 		apps => [],
+		statuses => $statuses,
 	};
 
 	while ( my $ref = $sth->fetchrow_hashref ) {

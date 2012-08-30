@@ -24,13 +24,8 @@ my $dbh = DBI->connect( "dbi:SQLite:dbname=$db", $user, $password )
 #};
 
 get '/' => sub {
-	my $vars = greeting();
-	template 'base.tt', $vars;
-#	template 'base.tt', {
-#		'name'		=>	$vars->{ 'name' },
-#		'title'		=>	$vars->{ 'title' },
-#		'logout_url'	=>	$vars->{ 'logout_url' },
-#	};
+	my $vars = getStatus($dbh, 'app', 'all');
+	template 'app.tt', $vars;
 };
 
 get '/help' => sub {

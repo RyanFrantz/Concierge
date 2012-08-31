@@ -6,10 +6,10 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getStatusTypes getResource postStatus getDeps );
-#our @EXPORT_OK = qw( greeting getStatus );
+our @EXPORT = qw( greeting getStatus getStatusTypes getDateRange getResource postStatus getDeps );
 
 use Template;
+use DateTime;
 
 #sub greeting {
 #	"Hello, World!\n\nI'm the App Status Dispatch a.k.a Concierge!\n";
@@ -50,6 +50,33 @@ sub getStatusTypes {
 	
 }
 
+sub getDateRange {
+	my $dayRange = shift;
+	# use today() ?
+	my $days = [];
+	my $dt = DateTime->now(
+		time_zone	=>	'America/New_York',
+	);
+
+	my $month = $dt->month_name;
+	my $day = $dt->day;
+	push @{ $days }, "$month $day";
+	#print "$month $day" . "\n";
+
+	my $i = '1';
+	while ( $i <= $dayRange ) {
+		$dt->subtract( days => '1' );
+		my $month = $dt->month_name;
+		my $day = $dt->day;
+		push @{ $days }, "$month $day";
+		#print "$month $day" . "\n";
+		$i++;
+	}
+
+	return $days;
+
+}
+
 sub getStatus {
 	# get the status of the requested resource (app, host, service)
 	my $dbh = shift;
@@ -73,9 +100,10 @@ sub getStatus {
 
 	# get status types for the given resource type
 	my $statuses = getStatusTypes( $dbh, $resource );
+	my $days = getDateRange( '6' );
 	my $vars = {
 		title => 'Concierge',
-		days => [ 'Monday', 'Sunday', ],
+		days => $days,
 		apps => [],
 		statuses => $statuses,
 	};

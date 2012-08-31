@@ -1,0 +1,2 @@
+<%# Set global variables here %>
+<% global.title = Stash %>

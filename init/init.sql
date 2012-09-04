@@ -13,6 +13,13 @@ CREATE TABLE app (
 	statusUpdateTimestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE appEvents (
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	appID INTEGER NOT NULL REFERENCES app( id ),
+	eventDescription TEXT,
+	eventDatetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- seed appStatus
 INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Available', 'icons/fugue/tick-circle.png' );
 INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Service disruption', 'icons/fugue/exclamation.png' );

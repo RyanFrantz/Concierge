@@ -17,6 +17,7 @@ CREATE TABLE app (
 INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Available', 'icons/fugue/tick-circle.png' );
 INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Service disruption', 'icons/fugue/exclamation.png' );
 INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Service outage', 'icons/fugue/cross-circle.png' );
+INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Scheduled maintenance', 'icons/fugue/traffic-cone.png' );
 
 -- seed app
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Clinician Desktop', 'MMOTS Workhorse', 2 );

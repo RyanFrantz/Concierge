@@ -58,18 +58,31 @@ sub getDateRange {
 		time_zone	=>	'America/New_York',
 	);
 
+	my %daysOfWeek = (
+		1	=>	'Mon',
+		2	=>	'Tue',
+		3	=>	'Wed',
+		4	=>	'Thu',
+		5	=>	'Fri',
+		6	=>	'Sat',
+		7	=>	'Sun',
+	);
+
+	# TODO: Clean up this redundant code!
+	my $day_of_week = $dt->day_of_week;
 	my $month = $dt->month_name;
 	my $day = $dt->day;
-	push @{ $days }, "$month $day";
-	#print "$month $day" . "\n";
+	push @{ $days }, "$daysOfWeek{ $day_of_week} $month $day";	# junks up the display
+	#push @{ $days }, "$month $day";
 
 	my $i = '1';
 	while ( $i <= $dayRange ) {
 		$dt->subtract( days => '1' );
+		my $day_of_week = $dt->day_of_week;
 		my $month = $dt->month_name;
 		my $day = $dt->day;
-		push @{ $days }, "$month $day";
-		#print "$month $day" . "\n";
+		push @{ $days }, "$daysOfWeek{ $day_of_week} $month $day";	# junks up the display
+		#push @{ $days }, "$month $day";
 		$i++;
 	}
 
@@ -115,7 +128,7 @@ sub getStatus {
 				statusImage => $ref->{"${resource}StatusImage"},
 				statusDescription => $ref->{"${resource}StatusDescription"},
 				history => [
-					{image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/hard-hat.png'}
+					{image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/traffic-cone.png'}, {image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/tick-circle.png' }, {image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/tick-circle.png' }, {image => 'icons/fugue/tick-circle.png' }
 				],
 	 	};
 		push @{ $vars->{ 'apps' } }, $hashref;

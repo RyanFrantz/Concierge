@@ -49,6 +49,14 @@ get '/apps/:appID/status' => sub {
 	template 'app.tt', $vars;
 };
 
+get '/apps/:appID/status/:datetime' => sub {
+	# this should return a message on failure (i.e. invalid appID)
+	my $appID = param( 'appID' );
+	my $datetime = param( 'datetime' );
+	my $vars = getStatus( $dbh, 'app', $appID );
+	template 'statusHistory.tt', $vars;
+};
+
 post '/apps/:appID/status' => sub {
 	my $appID = param( 'appID' );
 	my $statusID = param( 'statusID' );	# passed in the POST content

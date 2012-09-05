@@ -17,8 +17,8 @@ CREATE TABLE appEvents (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	appID INTEGER NOT NULL REFERENCES app( appID ),
 	appStatusID INTEGER NOT NULL REFERENCES appStatus( appStatusID ),
-	eventDescription TEXT,
-	eventDatetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+	message TEXT,
+	datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- seed appStatus
@@ -33,10 +33,12 @@ INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Request Tracker
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Secure Office Connection (VPN)', 'IPSec VPN Tunnel', 3 );
 
 -- see appEvents
-INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '1', '2', 'Backend database is being crushed by higher than normal IOPS' );
-INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '1', '3', 'Database crashed' );
-INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '1', '4', 'Maintenance was performed to correct the problem' );
-INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '2', '4', 'Request Tracker needs some indexes rebuilt' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '2', 'Backend database is being crushed by higher than normal IOPS' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '3', 'Database crashed' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '4', 'Maintenance was performed to correct the problem' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '2', '4', 'Request Tracker needs some indexes rebuilt' );
+INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '3', '3', 'The SSL certificates expired!', '2012-09-04 11:00:00' );
+INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '3', '4', 'The SSL certificates were renewed!', '2012-09-04 13:15:00' );
 
 -- service
 CREATE TABLE serviceStatus (

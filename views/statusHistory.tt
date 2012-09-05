@@ -1,0 +1,41 @@
+<h2><% app.name %></h2>
+<p id="serviceDescription"> <% app.description %></p>
+
+<% IF start_date %>
+<h3 class="date-range">
+  <% start_date|date:"n/j/Y" %>
+</h3>
+<% END %>
+
+<% IF events %>
+<table id="events" class="data" cellpadding="10">
+  <thead>
+    <tr>
+      <th class="time-header">Time</th>
+      <th class="status-header">Status</th>
+      <th class="status-header">Message</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% FOR e IN events %>
+    <tr>
+      <td class="status highlight"><img src="/images/<% e.statusImage %>" /></td>
+      <td><% e.message %></td>
+    </tr>
+    <% END %>
+  </tbody>
+</table>
+<% ELSE %>
+<section id="noevents">
+</section>
+<section id="allgood">
+  <img src="/images/icons/iconic/check_alt.png" alt="Up"/>
+  <% IF start_date %>
+  <p>No events here! The application was up and running for this time range.</p>
+  <% ELSE %>
+  <p>No events!  This application is available.</p>
+  <% END %>
+</section>
+<% END %>
+
+<% INCLUDE "_legend.html" %>

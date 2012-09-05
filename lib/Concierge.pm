@@ -6,7 +6,7 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRange getResource postStatus getDeps );
+our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRange getEvents getResource postStatus getDeps );
 
 use Template;
 use DateTime;
@@ -152,9 +152,9 @@ sub getStatusHistory {
 	my $history = [];
 
 	# get a row count for our query
-	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC };
+	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE ? ORDER BY datetime ASC };
 	# just return the first event for the given date; we'll use that to set the ultimate status icon
-	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC LIMIT 1 };
+	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE ? ORDER BY datetime ASC LIMIT 1 };
 	foreach my $date ( @{ $dates } ) {
 		my $sthGetCount = $dbh->prepare( $sqlGetRowCount )
 			or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
@@ -188,6 +188,32 @@ sub getStatusHistory {
 
 }
 
+sub getEvents {
+	# get event history for specific app status page
+	my $dbh = shift;
+	my $resource = shift;
+	my $id = shift;
+	my $date = shift;
+	# we need to call getResource() for the name and description of the resource for which we want events, and pass that back too
+	my $events = [];
+
+	my $sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" };
+	my $sth = $dbh->prepare( $sql )
+		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+	$sth->execute()
+		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+	while ( my $ref = $sth->fetchrow_hashref ) {
+		my $hashref = {
+			datetime	=>	$ref->{ "datetime" },
+			message		=>	$ref->{ "message" },
+			statusImage	=>	$ref->{ "${resource}StatusImage" },
+		};
+		push @{ $events }, $hashref;
+	}
+	return $events
+
+}
+
 sub postStatus {
 	# update the status of the requested resource (app, host, service)
 	my $dbh = shift;
@@ -216,17 +242,24 @@ sub getResource {
 	# get and return a list of items of type $resource
 	my $dbh = shift;
 	my $resource = shift;
-	my $sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} };
+	my $id = shift;
+	my $result = [];
+
+	my $sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} WHERE ${resource}ID = $id };
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
 
 	$sth->execute()
 		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 
-	while ( my @row = $sth->fetchrow_array ) {
-		print join( ' | ', @row ) . "\n";
+	while ( my $ref = $sth->fetchrow_hashref ) {
+		my $hashref = {
+			name		=>	$ref->{ "${resource}Name" },
+			description	=>	$ref->{ "${resource}Description" },
+		};
+		push @{ $result }, $hashref;
 	}
-	print "\n";
+	return $result;
 }
 
 sub getDeps {

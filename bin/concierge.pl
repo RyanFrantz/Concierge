@@ -37,11 +37,6 @@ get '/apps' => sub {
 	getResource( $dbh, 'app' );
 };
 
-get '/apps2' => sub {
-	my $vars = getStatus($dbh, 'app', 'all');
-	template 'app.tt', $vars;
-};
-
 # order is important; the 'all' block _must_ come before "get '/apps/:appID/status'" or it's ignored
 get '/apps/all/status' => sub {
 	getStatus( $dbh, 'app', 'all' );

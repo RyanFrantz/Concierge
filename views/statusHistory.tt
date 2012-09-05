@@ -34,7 +34,7 @@
   <% IF start_date %>
   <p>No events here! The application was up and running for this time range.</p>
   <% ELSE %>
-  <p>No events!  This application is available.</p>
+  <p>No events!  This application was fully available on <% date %>.</p>
   <% END %>
 </section>
 <% END %>

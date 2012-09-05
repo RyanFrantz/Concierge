@@ -15,7 +15,8 @@ CREATE TABLE app (
 
 CREATE TABLE appEvents (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	appID INTEGER NOT NULL REFERENCES app( id ),
+	appID INTEGER NOT NULL REFERENCES app( appID ),
+	appStatusID INTEGER NOT NULL REFERENCES appStatus( appStatusID ),
 	eventDescription TEXT,
 	eventDatetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -30,6 +31,10 @@ INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Scheduled
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Clinician Desktop', 'MMOTS Workhorse', 2 );
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Request Tracker', 'Technical Services Support Ticketing System', 1 );
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Secure Office Connection (VPN)', 'IPSec VPN Tunnel', 3 );
+
+-- see appEvents
+INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '1', '2', 'Backend database is being crushed by higher than normal IOPS' );
+INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '2', '4', 'Request Tracker needs some indexes rebuilt' );
 
 -- service
 CREATE TABLE serviceStatus (

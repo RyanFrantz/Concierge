@@ -200,26 +200,45 @@ sub getEvents {
 	my $app = getResource( $dbh, 'app', $id );
 	my $events = [];
 
+	my $sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" };
 	my $sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" };
+
+	my $sthGetRowCount = $dbh->prepare( $sqlGetRowCount )
+		or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
-	$sth->execute()
-		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
-	while ( my $ref = $sth->fetchrow_hashref ) {
-		my $hashref = {
-			datetime	=>	$ref->{ "datetime" },
-			message		=>	$ref->{ "message" },
-			statusImage	=>	$ref->{ "${resource}StatusImage" },
+
+	$sthGetRowCount->execute()
+		or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sthGetRowCount->errstr . "\n";
+	my $rowCount = $sthGetRowCount->fetchrow_array;
+	if ( $rowCount != '0' ) {
+		$sth->execute()
+			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+		while ( my $ref = $sth->fetchrow_hashref ) {
+			my $hashref = {
+				datetime	=>	$ref->{ "datetime" },
+				message		=>	$ref->{ "message" },
+				statusImage	=>	$ref->{ "${resource}StatusImage" },
+			};
+			push @{ $events }, $hashref;
+		}
+		$vars = {
+			title	=>	'Concierge',
+			date	=>	$date,
+			app	=>	$app,
+			events	=>	$events,
+			statuses => $statuses,
 		};
-		push @{ $events }, $hashref;
+	} else {
+		$vars = {
+			title	=>	'Concierge',
+			date	=>	$date,
+			app	=>	$app,
+			#events	=>	$events,	# don't send an empty 'events' key
+			statuses => $statuses,
+		};
 	}
 
-	$vars = {
-		title	=>	'Concierge',
-		app	=>	$app,
-		events	=>	$events,
-		statuses => $statuses,
-	};
 	return $vars;
 
 }

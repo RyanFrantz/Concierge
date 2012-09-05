@@ -3,11 +3,9 @@
 <p id="serviceDescription"> <% a.description %></p>
 <% END %>
 
-<% IF start_date %>
 <h3 class="date-range">
-  <% start_date|date:"n/j/Y" %>
+  <% date %>
 </h3>
-<% END %>
 
 <% IF events %>
 <table id="events" class="data" cellpadding="10">

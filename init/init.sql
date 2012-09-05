@@ -34,6 +34,8 @@ INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Secure Office C
 
 -- see appEvents
 INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '1', '2', 'Backend database is being crushed by higher than normal IOPS' );
+INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '1', '3', 'Database crashed' );
+INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '1', '4', 'Maintenance was performed to correct the problem' );
 INSERT INTO appEvents( appID, appStatusID, eventDescription ) VALUES( '2', '4', 'Request Tracker needs some indexes rebuilt' );
 
 -- service

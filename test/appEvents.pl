@@ -171,16 +171,29 @@ sub getStatusHistory {
 	my $id = shift;
 	my $dates = getDateRange( '6', 'dates' );
 
-	my $sql = qq{ SELECT ${resource}StatusID FROM ${resource}Events WHERE ${resource}ID = $id AND eventDatetime LIKE ? };
+	my $sql = qq{ SELECT ${resource}StatusID, ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC };
+	# get the count of rows matching our query...
+	my $sqlGetCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC };
 	foreach my $date ( @{ $dates } ) {
 		print "DATE: $date\n";
+		my $sthGetCount = $dbh->prepare( $sqlGetCount )
+			or die "Unable to prepare statement handle for \'$sqlGetCount\' " . $dbh->errstr . "\n";
 		my $sth = $dbh->prepare( $sql )
 			or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+
+		$sthGetCount->execute( "$date%" )
+			or die "Unable to execute statement for \'$sqlGetCount\' " . $sth->errstr . "\n";
 		$sth->execute( "$date%" )
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+		# ... if $rowCount == 0, there were no recorded events, set a default status for the day
+		my $rowCount = $sthGetCount->fetchrow_array;
+		#print "ROW COUNT: " . $rowCount . "\n";	# debug
+
 		while ( my $ref = $sth->fetchrow_hashref ) {
-			print "\tstatusID: " . $ref->{"${resource}StatusID"} . "\n";
+		# if only a single event, return that status. if multiple, highest value wins; return that
+			print "\t[" . $ref->{"${resource}StatusID"} . "] statusImage: " . $ref->{"${resource}StatusImage"} . "\n";
 		}
+		print "\t[1] statusImage: icons/fugue/tick-circle.png\n" if $rowCount == '0';
 	}
 
 }

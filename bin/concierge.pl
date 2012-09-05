@@ -53,7 +53,7 @@ get '/apps/:appID/status/:datetime' => sub {
 	# this should return a message on failure (i.e. invalid appID)
 	my $appID = param( 'appID' );
 	my $datetime = param( 'datetime' );
-	my $vars = getStatus( $dbh, 'app', $appID );
+	my $vars = getEvents( $dbh, 'app', $appID, $datetime );
 	template 'statusHistory.tt', $vars;
 };
 

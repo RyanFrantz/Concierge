@@ -194,7 +194,10 @@ sub getEvents {
 	my $resource = shift;
 	my $id = shift;
 	my $date = shift;
-	# we need to call getResource() for the name and description of the resource for which we want events, and pass that back too
+
+	my $vars;
+        my $statuses = getStatusTypes( $dbh, $resource );
+	my $app = getResource( $dbh, 'app', $id );
 	my $events = [];
 
 	my $sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" };
@@ -210,7 +213,14 @@ sub getEvents {
 		};
 		push @{ $events }, $hashref;
 	}
-	return $events
+
+	$vars = {
+		title	=>	'Concierge',
+		app	=>	$app,
+		events	=>	$events,
+		statuses => $statuses,
+	};
+	return $vars;
 
 }
 

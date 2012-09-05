@@ -1,5 +1,7 @@
-<h2><% app.name %></h2>
-<p id="serviceDescription"> <% app.description %></p>
+<% FOR a IN app %>
+<h2><% a.name %></h2>
+<p id="serviceDescription"> <% a.description %></p>
+<% END %>
 
 <% IF start_date %>
 <h3 class="date-range">
@@ -19,6 +21,7 @@
   <tbody>
     <% FOR e IN events %>
     <tr>
+      <td class="time"><% e.datetime %></td>
       <td class="status highlight"><img src="/images/<% e.statusImage %>" /></td>
       <td><% e.message %></td>
     </tr>

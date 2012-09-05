@@ -21,7 +21,9 @@
       </td>
       <% FOREACH h IN app.history %>
       <td class="status">
-	  <img class="sym" src="/images/<% h.image %>" />
+	<a href="/apps/<% app.id %>/status/<% h.date %>">
+		<img class="sym" src="/images/<% h.image %>" />
+	</a>
       </td>
       <% END %>
     <% END %>

@@ -6,7 +6,7 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getStatusTypes getDateRange getResource postStatus getDeps );
+our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRange getResource postStatus getDeps );
 
 use Template;
 use DateTime;
@@ -51,7 +51,9 @@ sub getStatusTypes {
 }
 
 sub getDateRange {
+	# return either day information (i.e. Mon) or date information (YYYY-MM-DD)
 	my $dayRange = shift;
+	my $requestType = shift;	# 'days' or 'dates'
 	# use today() ?
 	my $days = [];
 	my $dt = DateTime->now(
@@ -72,8 +74,10 @@ sub getDateRange {
 	my $day_of_week = $dt->day_of_week;
 	my $month = $dt->month_name;
 	my $day = $dt->day;
-	push @{ $days }, "$daysOfWeek{ $day_of_week} $month $day";	# junks up the display
-	#push @{ $days }, "$month $day";
+	push @{ $days }, "$month $day<br>($daysOfWeek{ $day_of_week})" if $requestType eq 'days';
+	$dt->set_time_zone( 'UTC' ) if $requestType eq 'dates';	# SQLite stores datetime values using UTC by default; we need to convert here; remains in effect until we leave this sub
+	my $ymd = $dt->ymd;	# YYYY-MM-DD
+	push @{ $days }, $ymd if $requestType eq 'dates';
 
 	my $i = '1';
 	while ( $i <= $dayRange ) {
@@ -81,7 +85,9 @@ sub getDateRange {
 		my $day_of_week = $dt->day_of_week;
 		my $month = $dt->month_name;
 		my $day = $dt->day;
-		push @{ $days }, "$daysOfWeek{ $day_of_week} $month $day";	# junks up the display
+		my $ymd = $dt->ymd;	# YYYY-MM-DD
+		push @{ $days }, "$month $day<br>($daysOfWeek{ $day_of_week})" if $requestType eq 'days';	# junks up the display
+		push @{ $days }, $ymd if $requestType eq 'dates';
 		#push @{ $days }, "$month $day";
 		$i++;
 	}
@@ -113,7 +119,8 @@ sub getStatus {
 
 	# get status types for the given resource type
 	my $statuses = getStatusTypes( $dbh, $resource );
-	my $days = getDateRange( '6' );
+	my $numDays = '6';
+	my $days = getDateRange( $numDays, 'days' );
 	my $vars = {
 		title => 'Concierge',
 		days => $days,
@@ -122,20 +129,63 @@ sub getStatus {
 	};
 
 	while ( my $ref = $sth->fetchrow_hashref ) {
+		my $history = getStatusHistory( $dbh, $resource, $ref->{"${resource}ID"} );
 		my $hashref = { 
 				name => $ref->{"${resource}Name"},
 				id => $ref->{"${resource}ID"},
 				statusImage => $ref->{"${resource}StatusImage"},
 				statusDescription => $ref->{"${resource}StatusDescription"},
-				history => [
-					{image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/traffic-cone.png'}, {image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/tick-circle.png' }, {image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/tick-circle.png' }, {image => 'icons/fugue/tick-circle.png' }
-				],
+				history => $history
 	 	};
 		push @{ $vars->{ 'apps' } }, $hashref;
 	}
 
 	return $vars;
 	
+}
+
+sub getStatusHistory {
+	my $dbh = shift;
+	my $resource = shift;
+	my $id = shift;
+	my $dates = getDateRange( '6', 'dates' );
+	my $history = [];
+
+	# get a row count for our query
+	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC };
+	# just return the first event for the given date; we'll use that to set the ultimate status icon
+	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC LIMIT 1 };
+	foreach my $date ( @{ $dates } ) {
+		my $sthGetCount = $dbh->prepare( $sqlGetRowCount )
+			or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
+		$sthGetCount->execute( "$date%" )
+			or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sthGetCount->errstr . "\n";
+		# if $rowCount == 0, there were no recorded events, set a default status for the day
+		my $rowCount = $sthGetCount->fetchrow_array;
+		if ( $rowCount == '0' ) {
+			my $hashref = {
+				image	=>	'icons/fugue/tick-circle.png',	# default, happy
+				date	=>	$date,
+			};
+			push @{ $history }, $hashref;
+		}
+
+		my $sth = $dbh->prepare( $sql )
+			or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+		$sth->execute( "$date%" )
+			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+
+		# we got events!
+		while ( my $ref = $sth->fetchrow_hashref ) {
+			my $hashref = {
+				image	=>	$ref->{"${resource}StatusImage"},
+				date	=>	$date,
+			};
+			push @{ $history }, $hashref;
+		}
+	}
+	return $history;
+
 }
 
 sub postStatus {

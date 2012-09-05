@@ -122,25 +122,68 @@ sub getStatus {
 	};
 
 	while ( my $ref = $sth->fetchrow_hashref ) {
+		my $history = getStatusHistory( $dbh, $resource, $ref->{"${resource}ID"} );
 		my $hashref = { 
 				name => $ref->{"${resource}Name"},
 				id => $ref->{"${resource}ID"},
 				statusImage => $ref->{"${resource}StatusImage"},
 				statusDescription => $ref->{"${resource}StatusDescription"},
-				history => [
-					{image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/traffic-cone.png'}, {image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/tick-circle.png' }, {image => 'icons/fugue/cross-circle.png' }, {image => 'icons/fugue/tick-circle.png' }, {image => 'icons/fugue/tick-circle.png' }
-				],
+				history => $history
 	 	};
 		push @{ $vars->{ 'apps' } }, $hashref;
-		#getStatusHistory() needs to return the proper array ref of hashes so we can pass it to the 'history' key
-		#getEvents( $dbh, $resource, $ref->{"${resource}ID"}, '2012-09-05' );
 	}
 
 	return $vars;
 	
 }
 
+sub getStatusHistory {
+	my $dbh = shift;
+	my $resource = shift;
+	my $id = shift;
+	my $dates = getDateRange( '6', 'dates' );
+	my $history = [];
+
+	# get a row count for our query
+	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC };
+	# just return the first event for the given date; we'll use that to set the ultimate status icon
+	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC LIMIT 1 };
+	foreach my $date ( @{ $dates } ) {
+		my $sthGetCount = $dbh->prepare( $sqlGetRowCount )
+			or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
+		$sthGetCount->execute( "$date%" )
+			or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sth->errstr . "\n";
+		# if $rowCount == 0, there were no recorded events, set a default status for the day
+		my $rowCount = $sthGetCount->fetchrow_array;
+		if ( $rowCount == '0' ) {
+			my $hashref = {
+				image	=>	'icons/fugue/tick-circle.png',	# default, happy
+				date	=>	$date,
+			};
+			push @{ $history }, $hashref;
+		}
+
+		my $sth = $dbh->prepare( $sql )
+			or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+		$sth->execute( "$date%" )
+			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+
+		# we got events!
+		while ( my $ref = $sth->fetchrow_hashref ) {
+			my $hashref = {
+				image	=>	$ref->{"${resource}StatusImage"},
+				date	=>	$date,
+			};
+			push @{ $history }, $hashref;
+		}
+	}
+	return $history;
+
+}
+#my $history = getStatusHistory( $dbh, 'app', '2' );
+
 sub getEvents {
+	# get event history for specific app status page
 	my $dbh = shift;
 	my $resource = shift;
 	my $id = shift;
@@ -157,47 +200,12 @@ sub getEvents {
 	}
 
 }
-
 #getEvents( $dbh, 'app', '1', '2012-09-05' );
 
 my $vars = getStatus( $dbh, 'app', 'all' );
-#print Dumper $vars;
+print Dumper $vars;
 my $dates = getDateRange( '6', 'dates' );
 #print Dumper $dates;
 
-sub getStatusHistory {
-	my $dbh = shift;
-	my $resource = shift;
-	my $id = shift;
-	my $dates = getDateRange( '6', 'dates' );
-
-	my $sql = qq{ SELECT ${resource}StatusID, ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC };
-	# get the count of rows matching our query...
-	my $sqlGetCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND eventDatetime LIKE ? ORDER BY eventDateTime ASC };
-	foreach my $date ( @{ $dates } ) {
-		print "DATE: $date\n";
-		my $sthGetCount = $dbh->prepare( $sqlGetCount )
-			or die "Unable to prepare statement handle for \'$sqlGetCount\' " . $dbh->errstr . "\n";
-		my $sth = $dbh->prepare( $sql )
-			or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
-
-		$sthGetCount->execute( "$date%" )
-			or die "Unable to execute statement for \'$sqlGetCount\' " . $sth->errstr . "\n";
-		$sth->execute( "$date%" )
-			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
-		# ... if $rowCount == 0, there were no recorded events, set a default status for the day
-		my $rowCount = $sthGetCount->fetchrow_array;
-		#print "ROW COUNT: " . $rowCount . "\n";	# debug
-
-		while ( my $ref = $sth->fetchrow_hashref ) {
-		# if only a single event, return that status. if multiple, highest value wins; return that
-			print "\t[" . $ref->{"${resource}StatusID"} . "] statusImage: " . $ref->{"${resource}StatusImage"} . "\n";
-		}
-		print "\t[1] statusImage: icons/fugue/tick-circle.png\n" if $rowCount == '0';
-	}
-
-}
-
-getStatusHistory( $dbh, 'app', '1' );
 
 $dbh->disconnect;

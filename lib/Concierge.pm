@@ -11,10 +11,6 @@ our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRang
 use Template;
 use DateTime;
 
-#sub greeting {
-#	"Hello, World!\n\nI'm the App Status Dispatch a.k.a Concierge!\n";
-#}
-
 sub greeting {
 	my $vars = {
 		name		=>	'Ryan',
@@ -133,8 +129,7 @@ sub getStatus {
 		my $hashref = { 
 				name => $ref->{"${resource}Name"},
 				id => $ref->{"${resource}ID"},
-				statusImage => $ref->{"${resource}StatusImage"},
-				statusDescription => $ref->{"${resource}StatusDescription"},
+				currentStatusImage => $ref->{"${resource}StatusImage"},
 				history => $history
 	 	};
 		push @{ $vars->{ 'apps' } }, $hashref;

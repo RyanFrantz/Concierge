@@ -16,7 +16,7 @@
       </td>
       <td class="status highlight">
 	<a href="/apps/<% app.id %>/status">
-	    <img class="information" src="/images/<% app.statusImage %>" alt="<% app.statusDescription %>"/>
+	    <img class="information" src="/images/<% app.currentStatusImage %>" />
 	</a>
       </td>
       <% FOREACH h IN app.history %>

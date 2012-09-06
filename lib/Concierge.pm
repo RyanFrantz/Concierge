@@ -6,7 +6,7 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRange getEvents getResource postStatus getDeps );
+our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRange getEvents getResource postStatus postEvent getDeps );
 
 use Template;
 use DateTime;
@@ -84,7 +84,6 @@ sub getDateRange {
 		my $ymd = $dt->ymd;	# YYYY-MM-DD
 		push @{ $days }, "$month $day<br>($daysOfWeek{ $day_of_week})" if $requestType eq 'days';	# junks up the display
 		push @{ $days }, $ymd if $requestType eq 'dates';
-		#push @{ $days }, "$month $day";
 		$i++;
 	}
 
@@ -116,7 +115,8 @@ sub getStatus {
 	# get status types for the given resource type
 	my $statuses = getStatusTypes( $dbh, $resource );
 	my $numDays = '6';
-	my $days = getDateRange( $numDays, 'days' );
+	#my $days = getDateRange( $numDays, 'days' );
+	my $days = getDateRange( $numDays, 'dates' );
 	my $vars = {
 		title => 'Concierge',
 		days => $days,
@@ -247,7 +247,6 @@ sub postStatus {
 	my $statusID = shift;
 	my $sql;
 	$sql = qq{ UPDATE ${resource} SET ${resource}StatusID = ? WHERE ${resource}ID = ? };
-	#print $sql . " $statusID, $resourceID\n";	# debug
 
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
@@ -259,7 +258,27 @@ sub postStatus {
 	processDeps();	# much planning to do here...
 
 	# TODO: return something useful on error...
-	print "\n";
+}
+
+sub postEvent {
+	# update the status of the requested resource (app, host, service)
+	my $dbh = shift;
+	my $resource = shift;
+	my $resourceID = shift;	# numeric
+	return unless $resourceID =~ /\d+/;	# only numeric args here!
+	my $statusID = shift;
+	my $message = shift;
+	my $sql;
+	$sql = qq{ INSERT INTO ${resource}Events ( ${resource}ID, ${resource}StatusID, message ) VALUES (?, ?, ?) };
+
+	my $sth = $dbh->prepare( $sql )
+		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+
+	$sth->execute( $resourceID, $statusID, $message )
+		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+
+	# update the current status of the resource
+	postStatus( $dbh, $resource, $resourceID, $statusID );
 }
 
 sub getResource {

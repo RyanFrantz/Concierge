@@ -63,6 +63,13 @@ post '/apps/:appID/status' => sub {
 	postStatus( $dbh, 'app', $appID, $statusID );
 };
 
+post '/apps/:appID/events' => sub {
+	my $appID = param( 'appID' );
+	my $statusID = param( 'statusID' );	# passed in the POST content
+	my $message = param( 'message' );	# passed in the POST content
+	postEvent( $dbh, 'app', $appID, $statusID, $message );
+};
+
 # -- hosts
 get '/hosts' => sub {
 	getResource( $dbh, 'host' );

@@ -195,8 +195,11 @@ sub getEvents {
 	my $app = getResource( $dbh, 'app', $id );
 	my $events = [];
 
-	my $sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" };
-	my $sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" };
+	my ( $sqlGetRowCount, $sql );
+	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" } if $date =~ /\d{4}-\d{2}-\d{2}/;
+	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id } if $date eq 'all';
+	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" ORDER BY datetime DESC } if $date =~ /\d{4}-\d{2}-\d{2}/;
+	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id ORDER BY datetime DESC LIMIT 10 } if $date eq 'all';
 
 	my $sthGetRowCount = $dbh->prepare( $sqlGetRowCount )
 		or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
@@ -206,6 +209,7 @@ sub getEvents {
 	$sthGetRowCount->execute()
 		or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sthGetRowCount->errstr . "\n";
 	my $rowCount = $sthGetRowCount->fetchrow_array;
+	$date = 'All Events' if $date eq 'all';
 	if ( $rowCount != '0' ) {
 		$sth->execute()
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";

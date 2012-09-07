@@ -39,14 +39,16 @@ get '/apps' => sub {
 
 # order is important; the 'all' block _must_ come before "get '/apps/:appID/status'" or it's ignored
 get '/apps/all/status' => sub {
-	getStatus( $dbh, 'app', 'all' );
+	my $vars = getStatus( $dbh, 'app', 'all' );
+	template 'app.tt', $vars;
 };
 
 get '/apps/:appID/status' => sub {
 	# this should return a message on failure (i.e. invalid appID)
 	my $appID = param( 'appID' );
-	my $vars = getStatus( $dbh, 'app', $appID );
-	template 'app.tt', $vars;
+	my $datetime = 'all';	# get 'em all!
+	my $vars = getEvents( $dbh, 'app', $appID, $datetime );
+	template 'statusHistory.tt', $vars;
 };
 
 get '/apps/:appID/status/:datetime' => sub {

@@ -35,13 +35,13 @@ INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Request Tracker
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Secure Office Connection (VPN)', 'IPSec VPN Tunnel', 1 );
 
 -- see appEvents
-INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '1', '2', 'Backend database is being crushed by higher than normal IOPS', '2012-09-07 12:00:01' );
-INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '1', '3', 'Database crashed', '2012-09-07 12:01:01' );
-INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '1', '5', 'Maintenance was performed to correct the problem', '2012-09-07 12:05:01' );
-INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '1', '1', 'The application is back online.', '2012-09-07 12:09:01' );
+INSERT INTO appEvents( appID, appStatusID, message) VALUES( '1', '2', 'Backend database is being crushed by higher than normal IOPS' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '3', 'Database crashed' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '5', 'Maintenance was performed to correct the problem' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '1', 'The application is back online.' );
 INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '2', '4', 'Request Tracker needs some indexes rebuilt' );
-INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '3', '3', 'The SSL certificates expired!', '2012-09-04 11:00:00' );
-INSERT INTO appEvents( appID, appStatusID, message, datetime ) VALUES( '3', '1', 'The SSL certificates were renewed!', '2012-09-04 13:15:00' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '3', '3', 'The SSL certificates expired!' );
+INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '3', '1', 'The SSL certificates were renewed!' );
 
 -- service
 CREATE TABLE serviceStatus (

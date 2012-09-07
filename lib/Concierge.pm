@@ -214,8 +214,23 @@ sub getEvents {
 		$sth->execute()
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 		while ( my $ref = $sth->fetchrow_hashref ) {
+			# parse the date so that we can localize if for our time zone (SQLite stores default datetimes in UTC)
+			my ($year, $month, $day, $hour, $minute, $second);
+			($year = $1, $month = $2, $day = $3, $hour = $4, $minute = $5, $second = $6) if $ref->{ "datetime" } =~ /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+			my $dt = DateTime->new(
+				year	=> 	$year,
+				month	=>	$month,
+				day	=>	$day,
+				hour	=>	$hour,
+				minute	=>	$minute,
+				second	=>	$second,
+				time_zone	=>	'UTC',
+			);
+			$dt->set_time_zone( 'America/New_York' );
+			my $adjustedDatetime = $dt->ymd('-') . " " . $dt->hms;
 			my $hashref = {
-				datetime	=>	$ref->{ "datetime" },
+				#datetime	=>	$ref->{ "datetime" },
+				datetime	=>	$adjustedDatetime,
 				message		=>	$ref->{ "message" },
 				statusImage	=>	$ref->{ "${resource}StatusImage" },
 			};

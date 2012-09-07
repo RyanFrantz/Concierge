@@ -183,23 +183,28 @@ sub getStatusHistory {
 
 }
 
+sub getDatetimeUTC {
+	# return a datetime string in the UTC time zone for use in database queries
+}
+
 sub getEvents {
 	# get event history for specific app status page
 	my $dbh = shift;
 	my $resource = shift;
 	my $id = shift;
-	my $date = shift;
+	my $datetime = shift;
 
 	my $vars;
         my $statuses = getStatusTypes( $dbh, $resource );
 	my $app = getResource( $dbh, 'app', $id );
 	my $events = [];
+	my ( $datetimeStart, $datetimeEnd );
 
 	my ( $sqlGetRowCount, $sql );
-	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" } if $date =~ /\d{4}-\d{2}-\d{2}/;
-	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id } if $date eq 'all';
-	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$date%" ORDER BY datetime DESC } if $date =~ /\d{4}-\d{2}-\d{2}/;
-	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id ORDER BY datetime DESC LIMIT 10 } if $date eq 'all';
+	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$datetime%" } if $datetime =~ /\d{4}-\d{2}-\d{2}/;
+	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id } if $datetime eq 'all';
+	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$datetime%" ORDER BY datetime DESC } if $datetime =~ /\d{4}-\d{2}-\d{2}/;
+	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id ORDER BY datetime DESC LIMIT 10 } if $datetime eq 'all';
 
 	my $sthGetRowCount = $dbh->prepare( $sqlGetRowCount )
 		or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
@@ -209,7 +214,7 @@ sub getEvents {
 	$sthGetRowCount->execute()
 		or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sthGetRowCount->errstr . "\n";
 	my $rowCount = $sthGetRowCount->fetchrow_array;
-	$date = 'All Events' if $date eq 'all';
+	$datetime = 'All Events' if $datetime eq 'all';
 	if ( $rowCount != '0' ) {
 		$sth->execute()
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
@@ -238,7 +243,7 @@ sub getEvents {
 		}
 		$vars = {
 			title	=>	'Concierge',
-			date	=>	$date,
+			date	=>	$datetime,
 			app	=>	$app,
 			events	=>	$events,
 			statuses => $statuses,
@@ -246,7 +251,7 @@ sub getEvents {
 	} else {
 		$vars = {
 			title	=>	'Concierge',
-			date	=>	$date,
+			date	=>	$datetime,
 			app	=>	$app,
 			#events	=>	$events,	# don't send an empty 'events' key
 			statuses => $statuses,

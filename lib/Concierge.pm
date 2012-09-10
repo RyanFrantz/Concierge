@@ -70,9 +70,8 @@ sub getDateRange {
 	my $day_of_week = $dt->day_of_week;
 	my $month = $dt->month_name;
 	my $day = $dt->day;
-	push @{ $days }, "$month $day<br>($daysOfWeek{ $day_of_week})" if $requestType eq 'days';
-	$dt->set_time_zone( 'UTC' ) if $requestType eq 'dates';	# SQLite stores datetime values using UTC by default; we need to convert here; remains in effect until we leave this sub
 	my $ymd = $dt->ymd;	# YYYY-MM-DD
+	push @{ $days }, "$month $day<br>($daysOfWeek{ $day_of_week})" if $requestType eq 'days';
 	push @{ $days }, $ymd if $requestType eq 'dates';
 
 	my $i = '1';
@@ -147,13 +146,18 @@ sub getStatusHistory {
 	my $history = [];
 
 	# get a row count for our query
-	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE ? ORDER BY datetime ASC };
+	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? ORDER BY datetime ASC };
 	# just return the first event for the given date; we'll use that to set the ultimate status icon
-	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE ? ORDER BY datetime ASC LIMIT 1 };
+	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? ORDER BY datetime ASC LIMIT 1 };
 	foreach my $date ( @{ $dates } ) {
+		my $datetimeStart = $date . " 00:00:00";
+		my $datetimeEnd = $date . " 23:59:59";
+		my $datetimeStartUTC = getDatetimeUTC( $datetimeStart );
+		my $datetimeEndUTC = getDatetimeUTC( $datetimeEnd );
 		my $sthGetCount = $dbh->prepare( $sqlGetRowCount )
 			or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
-		$sthGetCount->execute( "$date%" )
+		#$sthGetCount->execute( "$date%" )
+		$sthGetCount->execute( $datetimeStartUTC, $datetimeEndUTC )
 			or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sthGetCount->errstr . "\n";
 		# if $rowCount == 0, there were no recorded events, set a default status for the day
 		my $rowCount = $sthGetCount->fetchrow_array;
@@ -167,7 +171,8 @@ sub getStatusHistory {
 
 		my $sth = $dbh->prepare( $sql )
 			or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
-		$sth->execute( "$date%" )
+		#$sth->execute( "$date%" )
+		$sth->execute( $datetimeStartUTC, $datetimeEndUTC )
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 
 		# we got events!
@@ -184,7 +189,25 @@ sub getStatusHistory {
 }
 
 sub getDatetimeUTC {
+
 	# return a datetime string in the UTC time zone for use in database queries
+	my $datetime = shift;
+	# parse the date so that we can localize if for our time zone (SQLite stores default datetimes in UTC)
+	my ($year, $month, $day, $hour, $minute, $second);
+	($year = $1, $month = $2, $day = $3, $hour = $4, $minute = $5, $second = $6) if $datetime =~ /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+	my $dt = DateTime->new(
+		year	=> 	$year,
+		month	=>	$month,
+		day	=>	$day,
+		hour	=>	$hour,
+		minute	=>	$minute,
+		second	=>	$second,
+		time_zone	=>	'America/New_York',
+	);
+	$dt->set_time_zone( 'UTC' );
+	my $datetimeUTC = $dt->ymd('-') . " " . $dt->hms;
+	return $datetimeUTC;
+
 }
 
 sub getEvents {
@@ -198,12 +221,18 @@ sub getEvents {
         my $statuses = getStatusTypes( $dbh, $resource );
 	my $app = getResource( $dbh, 'app', $id );
 	my $events = [];
-	my ( $datetimeStart, $datetimeEnd );
+	my ( $datetimeStart, $datetimeEnd, $datetimeStartUTC, $datetimeEndUTC );
+	unless ( $datetime eq 'all' ) {
+		$datetimeStart = $datetime . " 00:00:00";
+		$datetimeEnd = $datetime . " 23:59:59";
+		$datetimeStartUTC = getDatetimeUTC( $datetimeStart );
+		$datetimeEndUTC = getDatetimeUTC( $datetimeEnd );
+	}
 
 	my ( $sqlGetRowCount, $sql );
-	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$datetime%" } if $datetime =~ /\d{4}-\d{2}-\d{2}/;
+	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= "$datetimeStartUTC" AND datetime <= "$datetimeEndUTC" } if $datetime =~ /\d{4}-\d{2}-\d{2}/;
 	$sqlGetRowCount = qq{ SELECT COUNT(*) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id } if $datetime eq 'all';
-	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime LIKE "$datetime%" ORDER BY datetime DESC } if $datetime =~ /\d{4}-\d{2}-\d{2}/;
+	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= "$datetimeStartUTC" AND datetime <= "$datetimeEndUTC" ORDER BY datetime DESC } if $datetime =~ /\d{4}-\d{2}-\d{2}/;
 	$sql = qq{ SELECT ${resource}StatusImage, message, datetime FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id ORDER BY datetime DESC LIMIT 10 } if $datetime eq 'all';
 
 	my $sthGetRowCount = $dbh->prepare( $sqlGetRowCount )

@@ -148,7 +148,7 @@ sub getStatusHistory {
 	# get a row count for our query
 	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? ORDER BY datetime ASC };
 	# just return the first event for the given date; we'll use that to set the ultimate status icon
-	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? ORDER BY datetime ASC LIMIT 1 };
+	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? AND ${resource}StatusID != '1' ORDER BY datetime ASC LIMIT 1 };
 	foreach my $date ( @{ $dates } ) {
 		my $datetimeStart = $date . " 00:00:00";
 		my $datetimeEnd = $date . " 23:59:59";

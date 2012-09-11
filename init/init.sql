@@ -34,15 +34,6 @@ INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Clinician Deskt
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Request Tracker', 'Technical Services Support Ticketing System', 1 );
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Secure Office Connection (VPN)', 'IPSec VPN Tunnel', 1 );
 
--- see appEvents
-INSERT INTO appEvents( appID, appStatusID, message) VALUES( '1', '2', 'Backend database is being crushed by higher than normal IOPS' );
-INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '3', 'Database crashed' );
-INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '5', 'Maintenance was performed to correct the problem' );
-INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '1', '1', 'The application is back online.' );
-INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '2', '4', 'Request Tracker needs some indexes rebuilt' );
-INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '3', '3', 'The SSL certificates expired!' );
-INSERT INTO appEvents( appID, appStatusID, message ) VALUES( '3', '1', 'The SSL certificates were renewed!' );
-
 -- service
 CREATE TABLE serviceStatus (
 	serviceStatusID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,

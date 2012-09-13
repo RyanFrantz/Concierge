@@ -34,7 +34,7 @@ get '/help' => sub {
 
 # -- apps
 get '/apps' => sub {
-	getResource( $dbh, 'app' );
+	getResource( $dbh, 'app', 'all' );
 };
 
 # order is important; the 'all' block _must_ come before "get '/apps/:appID/status'" or it's ignored
@@ -101,11 +101,14 @@ post '/hosts/:hostID/status' => sub {
 
 # -- services
 get '/services' => sub {
-	getResource( $dbh, 'service' );
+	#getResource( $dbh, 'service', 'all' );
+	my $vars = getStatus( $dbh, 'service', 'all' );
+	template 'service.tt', $vars;
 };
 
 get '/services/all/status' => sub {
-	getStatus( $dbh, 'service', 'all' );
+	my $vars = getStatus( $dbh, 'service', 'all' );
+	template 'service.tt', $vars;
 };
 
 # service dependencies
@@ -117,13 +120,22 @@ get '/services/:serviceID/deps' => sub {
 get '/services/:serviceID/status' => sub {
 	# this should return a message on failure (i.e. invalid serviceID)
 	my $serviceID = param( 'serviceID' );
-	getStatus( $dbh, 'service', $serviceID );
+	my $datetime = 'all';	# get 'em all!
+	my $vars = getEvents( $dbh, 'service', $serviceID, $datetime );
+	template 'statusHistory.tt', $vars;
 };
 
 post '/services/:serviceID/status' => sub {
 	my $serviceID = param( 'serviceID' );
 	my $statusID = param( 'statusID' );	# passed in the POST content
 	postStatus( $dbh, 'service', $serviceID, $statusID );
+};
+
+get '/services/:serviceID/status/:datetime' => sub {
+	my $serviceID = param( 'serviceID' );
+	my $datetime = param( 'datetime' );
+	my $vars = getEvents( $dbh, 'service', $serviceID, $datetime );
+	template 'statusHistory.tt', $vars;
 };
 
 dance;

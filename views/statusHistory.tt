@@ -1,10 +1,10 @@
-<% FOR a IN app %>
-<h2><% a.name %></h2>
-<p id="serviceDescription"> <% a.description %></p>
+<% FOR r IN resourceInfo %>
+<h2><% r.name %></h2>
+<p id="serviceDescription"> <% r.description %></p>
 <% END %>
 
 <h3 class="date-range">
-  <% date %>
+  <% header %> 
 </h3>
 
 <% IF events %>
@@ -31,10 +31,10 @@
 </section>
 <section id="allgood">
   <img src="/images/icons/iconic/check_alt.png" alt="Up"/>
-  <% IF start_date %>
-  <p>No events here! The application was up and running for this time range.</p>
+  <% IF date == 'all' %>
+  <p>No events here! The <% resource %> is healthy.</p>
   <% ELSE %>
-  <p>No events!  This application was fully available on <% date %>.</p>
+  <p>No events here! The <% resource %> was available on <% date %>.</p>
   <% END %>
 </section>
 <% END %>

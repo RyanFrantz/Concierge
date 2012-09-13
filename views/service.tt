@@ -1,7 +1,7 @@
-<table id="apps" class="data">
+<table id="services" class="data">
   <thead>
     <tr>
-      <th>Application</th>
+      <th>Service</th>
       <th class="today">Current</th>
       <% FOREACH day IN days %>
       <th> <% day %> </th>
@@ -9,19 +9,19 @@
   </thead>
 
   <tbody>
-    <% FOREACH app IN resourceInfo %>
+    <% FOREACH service IN resourceInfo %>
     <tr>
       <td>
-	<a href="/apps/<% app.id %>/status"><% app.name %></a>
+	<a href="/services/<% service.id %>/status"><% service.name %></a>
       </td>
       <td class="status highlight">
-	<a href="/apps/<% app.id %>/status">
-	    <img class="information" src="/images/<% app.currentStatusImage %>" />
+	<a href="/services/<% service.id %>/status">
+	    <img class="information" src="/images/<% service.currentStatusImage %>" />
 	</a>
       </td>
-      <% FOREACH h IN app.history %>
+      <% FOREACH h IN service.history %>
       <td class="status">
-	<a href="/apps/<% app.id %>/status/<% h.date %>">
+	<a href="/services/<% service.id %>/status/<% h.date %>">
 		<img class="sym" src="/images/<% h.image %>" />
 	</a>
       </td>

@@ -119,7 +119,7 @@ sub getStatus {
 	my $vars = {
 		title => 'Concierge',
 		days => $days,
-		apps => [],
+		resourceInfo => [],
 		statuses => $statuses,
 	};
 
@@ -131,7 +131,7 @@ sub getStatus {
 				currentStatusImage => $ref->{"${resource}StatusImage"},
 				history => $history
 	 	};
-		push @{ $vars->{ 'apps' } }, $hashref;
+		push @{ $vars->{ 'resourceInfo' } }, $hashref;
 	}
 
 	return $vars;
@@ -228,7 +228,7 @@ sub getEvents {
 
 	my $vars;
         my $statuses = getStatusTypes( $dbh, $resource );
-	my $app = getResource( $dbh, 'app', $id );
+	my $resourceInfo = getResource( $dbh, $resource, $id );
 	my $events = [];
 	my ( $datetimeStart, $datetimeEnd, $datetimeStartUTC, $datetimeEndUTC );
 	unless ( $datetime eq 'all' ) {
@@ -252,7 +252,10 @@ sub getEvents {
 	$sthGetRowCount->execute()
 		or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sthGetRowCount->errstr . "\n";
 	my $rowCount = $sthGetRowCount->fetchrow_array;
-	$datetime = 'All Events' if $datetime eq 'all';
+	#$datetime = 'All Events' if $datetime eq 'all';
+	my $header;
+	$header = $datetime;
+	$header = 'All Events' if $datetime eq 'all';
 	if ( $rowCount != '0' ) {
 		$sth->execute()
 			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
@@ -281,16 +284,20 @@ sub getEvents {
 		}
 		$vars = {
 			title	=>	'Concierge',
-			date	=>	$datetime,
-			app	=>	$app,
+			header	=>	$header,
+			#date	=>	$datetime,	# don't send 'all' back; makes no sense, jack
+			resource	=>	$resource,
+			resourceInfo	=>	$resourceInfo,
 			events	=>	$events,
 			statuses => $statuses,
 		};
 	} else {
 		$vars = {
 			title	=>	'Concierge',
+			header	=>	$header,
 			date	=>	$datetime,
-			app	=>	$app,
+			resource	=>	$resource,
+			resourceInfo	=>	$resourceInfo,
 			#events	=>	$events,	# don't send an empty 'events' key
 			statuses => $statuses,
 		};
@@ -350,12 +357,20 @@ sub getResource {
 	my $id = shift;
 	my $result = [];
 
-	my $sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} WHERE ${resource}ID = $id };
+	my $sql;
+	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} } if $id eq "all";
+	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} WHERE ${resource}ID = ? } if $id =~ /\d+/;
+
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
 
-	$sth->execute()
-		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+	if ( $id =~ /\d+/ ) {
+		$sth->execute( $id )
+			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+	} else {
+		$sth->execute()
+			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+	}
 
 	while ( my $ref = $sth->fetchrow_hashref ) {
 		my $hashref = {

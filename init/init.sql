@@ -35,7 +35,8 @@ INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Secure Office C
 -- service
 CREATE TABLE serviceStatus (
 	serviceStatusID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	serviceStatusDescription TEXT
+	serviceStatusDescription TEXT,
+	serviceStatusImage TEXT
 );
 
 CREATE TABLE service (
@@ -46,16 +47,24 @@ CREATE TABLE service (
 	statusUpdateTimestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE serviceEvents (
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	serviceID INTEGER NOT NULL REFERENCES service( serviceID ),
+	serviceStatusID INTEGER NOT NULL REFERENCES serviceStatus( serviceStatusID ),
+	message TEXT,
+	datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- seed serviceStatus
-INSERT INTO serviceStatus( serviceStatusDescription ) VALUES( 'UP' );
+INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Up', 'icons/fugue/tick-circle.png'  );
 -- I think we need something akin to 'REDUNDACY LOST' to indicate the potential for disruption to an upstream app
 --  when a given service has n+1 hosts that provide that service (i.e. DNS)
-INSERT INTO serviceStatus( serviceStatusDescription ) VALUES( 'REDUNDANCY LOST' );
-INSERT INTO serviceStatus( serviceStatusDescription ) VALUES( 'DOWN' );
+INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Redundancy lost', 'icons/fugue/exclamation.png' );
+INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Down', 'icons/fugue/cross-circle.png' );
 
--- seed status
-INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'DNS', 'Domain Name Service', 3 );
-INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'Web Servers', 'Backend Web Servers', 2 );
+-- seed service
+INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'DNS', 'Domain Name Service', 1 );
+INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'Web Servers', 'Backend Web Servers', 1 );
 INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'Web Load Balancers', 'Web Load Balancers', 1 );
 
 -- host

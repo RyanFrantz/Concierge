@@ -147,8 +147,8 @@ sub getStatusHistory {
 
 	# get a row count for our query
 	my $sqlGetRowCount = qq{ SELECT COUNT( * ) FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? ORDER BY datetime ASC };
-	# just return the first event for the given date; we'll use that to set the ultimate status icon
-	my $sql = qq{ SELECT ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? AND ${resource}StatusID != '1' ORDER BY datetime ASC LIMIT 1 };
+	# return all events except 'OK/Available' events so that we can determine the ultimate icon to use on the main page
+	my $sql = qq{ SELECT ${resource}StatusID, ${resource}StatusImage FROM ${resource}Events NATURAL JOIN ${resource}Status WHERE ${resource}ID = $id AND datetime >= ? AND datetime <= ? AND ${resource}StatusID != '1' };
 	foreach my $date ( @{ $dates } ) {
 		my $datetimeStart = $date . " 00:00:00";
 		my $datetimeEnd = $date . " 23:59:59";
@@ -156,7 +156,6 @@ sub getStatusHistory {
 		my $datetimeEndUTC = getDatetimeUTC( $datetimeEnd );
 		my $sthGetCount = $dbh->prepare( $sqlGetRowCount )
 			or die "Unable to prepare statement handle for \'$sqlGetRowCount\' " . $dbh->errstr . "\n";
-		#$sthGetCount->execute( "$date%" )
 		$sthGetCount->execute( $datetimeStartUTC, $datetimeEndUTC )
 			or die "Unable to execute statement for \'$sqlGetRowCount\' " . $sthGetCount->errstr . "\n";
 		# if $rowCount == 0, there were no recorded events, set a default status for the day
@@ -167,23 +166,33 @@ sub getStatusHistory {
 				date	=>	$date,
 			};
 			push @{ $history }, $hashref;
-		}
+		} else {
 
-		my $sth = $dbh->prepare( $sql )
-			or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
-		#$sth->execute( "$date%" )
-		$sth->execute( $datetimeStartUTC, $datetimeEndUTC )
-			or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
+			my $sth = $dbh->prepare( $sql )
+				or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
+			$sth->execute( $datetimeStartUTC, $datetimeEndUTC )
+				or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 
-		# we got events!
-		while ( my $ref = $sth->fetchrow_hashref ) {
-			my $hashref = {
-				image	=>	$ref->{"${resource}StatusImage"},
-				date	=>	$date,
-			};
-			push @{ $history }, $hashref;
+			my %id2Image;
+			while ( my $ref = $sth->fetchrow_hashref ) {
+				$id2Image{ $ref->{"${resource}StatusID"} } = $ref->{"${resource}StatusImage"};
+			}
+
+			# set the ultimate status icon according to the below rules; these define the severity of the status' it's not elegant, but it works
+			my @severityOrder = ( 3, 2, 4 );
+			foreach my $statusID ( @severityOrder ) {
+				if ( exists $id2Image{ $statusID } ) {
+					my $hashref = {
+						image	=>	$id2Image{ $statusID },
+						date	=>	$date,
+					};
+					push @{ $history }, $hashref;
+					last;
+				}
+			}
 		}
 	}
+
 	return $history;
 
 }

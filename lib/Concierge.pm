@@ -6,7 +6,7 @@ use warnings;
 
 use Exporter;
 our @ISA = qw( Exporter);
-our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRange getEvents getResource postStatus postEvent getDeps );
+our @EXPORT = qw( greeting getStatus getStatusHistory getStatusTypes getDateRange getEvents getResource postStatus postEvent getDeps processDeps );
 
 use Template;
 use DateTime;
@@ -96,9 +96,9 @@ sub getStatus {
 	my $resource = shift;
 	my $resourceID = shift;	# can be numeric or the word 'all'
 	my $sql;
-	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} };
-	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}StatusDescription, ${resource}StatusImage FROM ${resource} NATURAL JOIN ${resource}Status } if $resourceID eq "all";
-	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}.${resource}Name, ${resource}StatusDescription, ${resource}StatusImage FROM ${resource} NATURAL JOIN ${resource}Status WHERE ${resource}.${resource}ID = ? } if $resourceID =~ /\d+/;
+	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}Description FROM ${resource} ORDER BY ${resource}Name ASC };
+	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}Name, ${resource}StatusDescription, ${resource}StatusImage FROM ${resource} NATURAL JOIN ${resource}Status ORDER BY ${resource}Name ASC } if $resourceID eq "all";
+	$sql = qq{ SELECT DISTINCT ${resource}ID, ${resource}.${resource}Name, ${resource}StatusDescription, ${resource}StatusImage FROM ${resource} NATURAL JOIN ${resource}Status WHERE ${resource}.${resource}ID = ? ORDER BY ${resource}Name ASC } if $resourceID =~ /\d+/;
 
 	my $sth = $dbh->prepare( $sql )
 		or die "Unable to prepare statement handle for \'$sql\' " . $dbh->errstr . "\n";
@@ -400,10 +400,11 @@ sub getDeps {
 	$sth->execute( $resourceID )
 		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 
-	while ( my @row = $sth->fetchrow_array ) {
-		print join( ' | ', @row ) . "\n";
+	my $result = [];
+	while ( my $ref = $sth->fetchrow_hashref ) {
+		push @{ $result }, $ref-> { "appID" };
 	}
-	print "\n";
+	return $result;
 }
 
 sub processDeps {
@@ -412,6 +413,18 @@ sub processDeps {
 	# 2. getDeps()
 	# 3. postStatus()
 	# 4. updateDashboard() << here? or outside of processDeps()?
+	my $dbh = shift;
+	my $resource = shift;
+	my $resourceID = shift;	# numeric
+	my $statusID = shift;
+	my $message = shift;
+	return unless $resourceID =~ /\d+/;	# only numeric args here!
+	print "\$resourceID is numeric\n" if $resourceID =~ /\d+/;
+	print "\$resourceID = $resourceID\n\n";
+	my $deps = getDeps( $dbh, $resource, $resourceID );
+	foreach my $id ( @$deps ) {
+		postEvent( $dbh, 'app', $id, $statusID, $message );
+	}
 }
 
 sub getServiceStatus2AppStatusRules {

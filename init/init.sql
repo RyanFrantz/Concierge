@@ -31,6 +31,9 @@ INSERT INTO appStatus( appStatusDescription, appStatusImage ) VALUES( 'Scheduled
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Clinician Desktop', 'MMOTS Workhorse', 1 );
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Request Tracker', 'Technical Services Support Ticketing System', 1 );
 INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Secure Office Connection (VPN)', 'IPSec VPN Tunnel', 1 );
+INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Production Engine', 'Data Slurpee', 1 );
+INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Enhanced Data Analytics', 'ERGs, ETGs, EBMs', 1 );
+INSERT INTO app( appName, appDescription, appStatusID ) VALUES( 'Ad Hoc Reporting', 'Build-a-Report', 1 );
 
 -- service
 CREATE TABLE serviceStatus (
@@ -56,16 +59,18 @@ CREATE TABLE serviceEvents (
 );
 
 -- seed serviceStatus
-INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Up', 'icons/fugue/tick-circle.png'  );
+INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Available', 'icons/fugue/tick-circle.png'  );
 -- I think we need something akin to 'REDUNDACY LOST' to indicate the potential for disruption to an upstream app
 --  when a given service has n+1 hosts that provide that service (i.e. DNS)
-INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Redundancy lost', 'icons/fugue/exclamation.png' );
-INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Down', 'icons/fugue/cross-circle.png' );
+INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Service disruption', 'icons/fugue/exclamation.png' );
+INSERT INTO serviceStatus( serviceStatusDescription, serviceStatusImage ) VALUES( 'Service outage', 'icons/fugue/cross-circle.png' );
 
 -- seed service
 INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'DNS', 'Domain Name Service', 1 );
 INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'Web Servers', 'Backend Web Servers', 1 );
 INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'Web Load Balancers', 'Web Load Balancers', 1 );
+INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'Database: OTS', 'Database: OTS', 1 );
+INSERT INTO service( serviceName, serviceDescription, serviceStatusID ) VALUES( 'Database: OTS Stratification', 'Database: OTS Stratification', 1 );
 
 -- host
 CREATE TABLE hostStatus (
@@ -125,10 +130,15 @@ CREATE TABLE service2app (
 -- seed service2app
 ---- DNS is required by the Clinician Desktop app
 INSERT INTO service2app( serviceID, appID ) VALUES( 1, 1 );
----- The 'Web Servers' service is required by the Clinician Desktop app
-INSERT INTO service2app( serviceID, appID ) VALUES( 2, 1 );
 ---- DNS is required by the Request Tracker app
 INSERT INTO service2app( serviceID, appID ) VALUES( 1, 2 );
+---- DNS is required by all of these predefined apps
+INSERT INTO service2app( serviceID, appID ) VALUES( 1, 3 );
+INSERT INTO service2app( serviceID, appID ) VALUES( 1, 4 );
+INSERT INTO service2app( serviceID, appID ) VALUES( 1, 5 );
+INSERT INTO service2app( serviceID, appID ) VALUES( 1, 6 );
+---- The 'Web Servers' service is required by the Clinician Desktop app
+INSERT INTO service2app( serviceID, appID ) VALUES( 2, 1 );
 ---- The 'Web Servers' service is required by the Request Tracker app
 INSERT INTO service2app( serviceID, appID ) VALUES( 2, 2 );
 

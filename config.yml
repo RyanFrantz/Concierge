@@ -33,4 +33,5 @@ engines:
 
 # listen on port 80 like a good little webapp should
 #port: 80
-port: 8080
+#port: 8080
+port: 80

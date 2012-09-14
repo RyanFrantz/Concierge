@@ -114,7 +114,8 @@ get '/services/all/status' => sub {
 # service dependencies
 get '/services/:serviceID/deps' => sub {
 	my $serviceID = param( 'serviceID' );
-	getDeps( $dbh, 'service', $serviceID );
+	#getDeps( $dbh, 'service', $serviceID );
+	processDeps( $dbh, 'service', $serviceID );
 };
 
 get '/services/:serviceID/status' => sub {
@@ -129,6 +130,15 @@ post '/services/:serviceID/status' => sub {
 	my $serviceID = param( 'serviceID' );
 	my $statusID = param( 'statusID' );	# passed in the POST content
 	postStatus( $dbh, 'service', $serviceID, $statusID );
+};
+
+post '/services/:serviceID/events' => sub {
+	my $serviceID = param( 'serviceID' );
+	my $statusID = param( 'statusID' );	# passed in the POST content
+	my $message = param( 'message' );	# passed in the POST content
+	postEvent( $dbh, 'service', $serviceID, $statusID, $message );
+	print "\n\nprocessDeps( $dbh, 'service', $serviceID, $statusID, $message );\n\n";
+	processDeps( $dbh, 'service', $serviceID, $statusID, $message );
 };
 
 get '/services/:serviceID/status/:datetime' => sub {

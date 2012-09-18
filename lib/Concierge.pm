@@ -162,7 +162,7 @@ sub getStatusHistory {
 		my $rowCount = $sthGetCount->fetchrow_array;
 		if ( $rowCount == '0' ) {
 			my $hashref = {
-				image	=>	'icons/fugue/tick-circle.png',	# default, happy
+				#image	=>	'icons/fugue/tick-circle.png',	# default, happy
 				date	=>	$date,
 			};
 			push @{ $history }, $hashref;
@@ -324,7 +324,7 @@ sub postStatus {
 		or die "Unable to execute statement for \'$sql\' " . $sth->errstr . "\n";
 
 	# TODO: have postStatus() process dependencies and set upstream statuses as well
-	processDeps();	# much planning to do here...
+	#processDeps();	# much planning to do here...
 
 	# TODO: return something useful on error...
 }
@@ -409,18 +409,12 @@ sub getDeps {
 
 sub processDeps {
 	# process dependencies and update status accordingly
-	# 1. determine the appropriate upstream resource (i.e. host -> service; service -> app)
-	# 2. getDeps()
-	# 3. postStatus()
-	# 4. updateDashboard() << here? or outside of processDeps()?
 	my $dbh = shift;
 	my $resource = shift;
 	my $resourceID = shift;	# numeric
 	my $statusID = shift;
 	my $message = shift;
 	return unless $resourceID =~ /\d+/;	# only numeric args here!
-	print "\$resourceID is numeric\n" if $resourceID =~ /\d+/;
-	print "\$resourceID = $resourceID\n\n";
 	my $deps = getDeps( $dbh, $resource, $resourceID );
 	foreach my $id ( @$deps ) {
 		postEvent( $dbh, 'app', $id, $statusID, $message );

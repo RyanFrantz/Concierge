@@ -137,8 +137,7 @@ post '/services/:serviceID/events' => sub {
 	my $statusID = param( 'statusID' );	# passed in the POST content
 	my $message = param( 'message' );	# passed in the POST content
 	postEvent( $dbh, 'service', $serviceID, $statusID, $message );
-	print "\n\nprocessDeps( $dbh, 'service', $serviceID, $statusID, $message );\n\n";
-	processDeps( $dbh, 'service', $serviceID, $statusID, $message );
+	processDeps( $dbh, 'service', $serviceID, $statusID, "$message See <a href=\"http://status.ryanfrantz.com/services/$serviceID/status\">http://status.ryanfrantz.com/services/$serviceID/status</a> for more information." );
 };
 
 get '/services/:serviceID/status/:datetime' => sub {

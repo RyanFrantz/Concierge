@@ -162,7 +162,7 @@ sub getStatusHistory {
 		my $rowCount = $sthGetCount->fetchrow_array;
 		if ( $rowCount == '0' ) {
 			my $hashref = {
-				#image	=>	'icons/fugue/tick-circle.png',	# default, happy
+				image	=>	'icons/fugue/tick-circle.png',	# default, happy
 				date	=>	$date,
 			};
 			push @{ $history }, $hashref;
@@ -416,8 +416,14 @@ sub processDeps {
 	my $message = shift;
 	return unless $resourceID =~ /\d+/;	# only numeric args here!
 	my $deps = getDeps( $dbh, $resource, $resourceID );
-	foreach my $id ( @$deps ) {
-		postEvent( $dbh, 'app', $id, $statusID, $message );
+	if ( $resource eq 'service' ) {
+		foreach my $id ( @$deps ) {
+			postEvent( $dbh, 'app', $id, $statusID, $message );
+		}
+	} elsif ( $resource eq 'host' ) {
+		foreach my $id ( @$deps ) {
+			postEvent( $dbh, 'service', $id, $statusID, $message );
+		}
 	}
 }
 

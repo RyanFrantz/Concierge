@@ -1,9 +1,11 @@
 services:
-  - name: DNS
-    description: Domain Name Service
+  - service: &serviceDns
+      name: DNS
+      description: Domain Name Service
 
-  - name: Web Load Balancers
-    description: Distributing HTTP Requests Since 2010
+  - service: &serviceLbs
+      name: Web Load Balancers
+      description: Distributing HTTP Requests Since 2010
 
   - name: Web Servers
     description: Handling HTTP Requests Since 2004
@@ -11,15 +13,18 @@ services:
 apps:
   - name: Clinician Desktop
     description: MMOTS Workhorse
-    dependencies: # need to reference the appropriate services using YAML's reference syntax
+    dependencies: *serviceLbs
 
   - name: Request Tracker
     description: Tickets galore!
-    dependencies:
+    dependencies: *serviceDns
 
   - name: Production Engine
     description: Data Slurpee
+    # NOTE: Perl's YAML module doen't grok aliases in list format using [] syntax
     dependencies:
+      - *serviceDns
+      - *serviceLbs
 
   - name: Ad hoc Reporting
     description: Build-a-report

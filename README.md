@@ -2,6 +2,10 @@
 ## Purpose
 Concierge is my attempt to build an easy to use RESTful web application to act as the smart glue between my monitoring stuff (Nagios, Splunk, logstash, db tools, etc) and a simple status dashboard that non-technical users can understand.
 
+I originally wrote about this here: http://www.ryanfrantz.com/2012/07/10/concierge-he-knows-whats-up/.
+
+Come see all the fun at http://status.ryanfrantz.com/.
+
 ## Extended Purpose
 Recently one of my sysadmins [(jtslear)] (https://github.com/jtslear) asked me if Concierge, being so smart, would kindly recommend graphs for sysadmins to review in the event of a disruption or outage.  Previously, that had not been planned.  Now, it is.  Pow!
 

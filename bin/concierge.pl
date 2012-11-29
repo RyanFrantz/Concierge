@@ -9,7 +9,7 @@ use Concierge;
 use Concierge::Help;
 
 # vars
-my $db = '/root/concierge/sqlite/appStatus.db';
+my $db = '/root/concierge/sqlite/concierge.db';
 # no user/pass combo; we're using SQLite
 my $user = "";
 my $password = "";

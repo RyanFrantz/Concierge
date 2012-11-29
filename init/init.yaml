@@ -11,10 +11,23 @@ services:
       name: Web Servers
       description: Handling HTTP Requests Since 2004
 
+  - service: &serviceStableHands
+      name: Stable Hands
+      description: Stable hands with... stable hands. Ability to make rainbows is a must. Hungry unicorns and all.
+
 apps:
-  - name: Clinician Desktop
-    description: MMOTS Workhorse
+  - name: Foobar Widgets
+    description: Widget Workhorse
     dependencies: *serviceLbs
+
+  - name: Baz Factory
+    description: Factoring Bazzes
+    dependencies: *serviceWww
+
+  - name: Unicorn Stabling
+    description: Taking care of what matters most
+    dependencies:
+      - *serviceStableHands
 
   - name: Request Tracker
     description: Tickets galore!

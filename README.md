@@ -12,8 +12,13 @@ Current Concierge runs as a standalone script.  My plan is to use Apache to prop
 ### Perl Dancer
 This project uses Perl Dancer <http://perldancer.org/>.  I'm best at Perl.  Perl Dancer is based on the Sinatra project.
 
+__I think I'm going to port this project to Ruby and use Sinatra. BTW.__
+
 ### SQLite
 SQLite is fast and simple, two things I really want this project to be.
 
 #### Table Names
-The table names a selected are **singular**.  I usually prefer plural table names in designing tables (the content makes up a collection of the thing the table is named for), but I also like simple code.  So, to serve the latter, I use singular table names to make my code simpler.
+The table names I selected are **singular**.  I usually prefer plural table names in designing tables (the content makes up a collection of the thing the table is named for), but I also like simple code.  So, to serve the latter, I use singular table names to make my code simpler.
+
+### YAML
+So that others can easily configure and use Concierge, I've select YAML to define the applications, services, and dependencies between the two.

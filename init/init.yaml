@@ -7,8 +7,9 @@ services:
       name: Web Load Balancers
       description: Distributing HTTP Requests Since 2010
 
-  - name: Web Servers
-    description: Handling HTTP Requests Since 2004
+  - service: &serviceWww
+      name: Web Servers
+      description: Handling HTTP Requests Since 2004
 
 apps:
   - name: Clinician Desktop
@@ -17,7 +18,9 @@ apps:
 
   - name: Request Tracker
     description: Tickets galore!
-    dependencies: *serviceDns
+    dependencies:
+      - *serviceDns
+      - *serviceWww
 
   - name: Production Engine
     description: Data Slurpee
@@ -25,8 +28,12 @@ apps:
     dependencies:
       - *serviceDns
       - *serviceLbs
+      - *serviceWww
 
-  - name: Ad hoc Reporting
+  - name: Ad Hoc Reporting
     description: Build-a-report
     dependencies:
+      - *serviceDns
+      - *serviceLbs
+      - *serviceWww
 
